@@ -1,17 +1,18 @@
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import * as Discord from 'discord.js'
-import Command from './models/bot/command.model';
-import { Ping, Slurp } from './commands';
+import Command from './lib/models/bot/command.model';
+import { Ping } from './src/commands';
+import { Database } from './lib/database/database';
 
 const bot = new Discord.Client();
 
-dotenv.config();
-
-const commands: Command[] = [Ping, Slurp]
+const commands: Command[] = [Ping]
 
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user?.tag}`)
-    commands.sort((a, b) => { return a.permissions.length - b.permissions.length })
+    commands.sort((a, b) => { return b.permissions.length - a.permissions.length })
 })
 
 bot.on('message', message => {
@@ -33,6 +34,8 @@ bot.on('message', message => {
             message.react('❓')
         }
     }
+
+    Database.addXp(message.author.id)
 })
 
 bot.login(process.env.BOT_TOKEN)

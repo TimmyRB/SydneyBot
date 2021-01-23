@@ -1,22 +1,18 @@
-import { Permissions, Message, GuildMember } from "discord.js";
+import { Permissions, Message, GuildMember } from 'discord.js';
 
 export default class Command {
   name: String;
-  private options: [{ name: string; type: string | number; required: boolean; }?];
   permissions: Permissions[];
-  private callback: (message: Message, options: [{ key: string, value: string | number }?]) => void;
-
+  private callback: (message: Message, args: string[]) => void;
 
   /**
-   * 
+   * Creates a new Command
    * @param name Name of the command, also how the command will be called
-   * @param options Options that need to be parsed and returned from the user's message
    * @param permissions Permissions that the message author needs to have
    * @param callback Provides parsed Options, Original message object, and the User from the Database
    */
-  constructor(name: String, options: [{ name: string, type: string | number, required: boolean }?], permissions: Permissions[], callback: (message: Message, options: [{ key: string, value: string | number }?]) => void) {
+  constructor(name: String, permissions: Permissions[], callback: (message: Message, args: string[]) => void) {
     this.name = name.toLowerCase();
-    this.options = options;
     this.permissions = permissions;
     this.callback = callback;
   }
@@ -34,10 +30,11 @@ export default class Command {
   }
 
   run(message: Message): boolean {
-    let content = message.content.trim().toLowerCase()
-    let cNameIndex = (content.indexOf(' ') !== -1 ? content.indexOf(' ') : content.length)
-    if (content.substring(1, cNameIndex) !== this.name) {
-      console.log(`Command didn\'t match: ${content.substring(1, cNameIndex)}`)
+    let args = message.content.trim().toLowerCase().slice(1).split(' ')
+    let command = args.shift()
+
+    if (command !== this.name) {
+      console.log(`Command didn\'t match: ${command})}`)
       return false
     }
 
@@ -48,7 +45,12 @@ export default class Command {
       return false
     }
 
-    this.callback(message, [])
+    for (let i = 0; i < args.length; i++) {
+      if (args[i].startsWith('<@') && args[i].endsWith('>'))
+        args.splice(i, 1)
+    }
+
+    this.callback(message, args)
     return true
   }
 }
