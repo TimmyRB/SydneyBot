@@ -10,7 +10,7 @@ import Prompt from './lib/models/bot/prompt.model';
 const bot = new Discord.Client({ partials: ['MESSAGE', 'REACTION'] });
 
 // Commands need to be added here before they'll work
-const commands: Command[] = [Commands.Info, Commands.Help, Commands.BulkDelete]
+const commands: Command[] = [Commands.Info, Commands.Help, Commands.BulkDelete, Commands.RMP]
 
 // Invites will be cached here
 const invites: any = {}
