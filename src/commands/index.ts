@@ -1,1 +1,3 @@
-export { Ping } from './ping'
+export { Info } from './info'
+export { Help } from './help'
+export { BulkDelete } from './bulkDelete'

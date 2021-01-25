@@ -2,9 +2,9 @@ import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { sequelize } from './index'
 
 export class Users extends Model {
-  public uuid!: number;
+  public uuid!: string;
   public referrals!: number;
-  public referrer!: number | null;
+  public referrer!: string | null;
   public xp!: number;
   public xpLastUpdated!: Date;
   public commands!: number;
@@ -18,7 +18,7 @@ export class Users extends Model {
 
 Users.init({
   uuid: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     primaryKey: true,
     allowNull: false
   },
@@ -28,7 +28,7 @@ Users.init({
     allowNull: false
   },
   referrer: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     defaultValue: null,
     allowNull: true
   },
