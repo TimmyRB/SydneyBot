@@ -6,11 +6,12 @@ import Command from './lib/models/bot/command.model';
 import * as Commands from './src/commands';
 import { Database } from './lib/database/database';
 import Prompt from './lib/models/bot/prompt.model';
+import Assigner from './lib/models/bot/assigner.model';
 
 const bot = new Discord.Client({ partials: ['MESSAGE', 'REACTION'] });
 
 // Commands need to be added here before they'll work
-const commands: Command[] = [Commands.Info, Commands.Help, Commands.BulkDelete, Commands.RMP]
+const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, Commands.AssignEmbed]
 
 // Invites will be cached here
 const invites: any = {}
@@ -30,17 +31,21 @@ bot.on('ready', () => {
 
 // Handle Messages
 bot.on('message', message => {
-    if (message.author === bot.user)
-        return
-
-    if (message.channel.type === 'dm' || message.channel.type === 'news')
-        return
-
     Database.findUser(message.author.id).then(dbUser => {
         if (dbUser.muted) {
             message.delete()
             return
         }
+
+        if (message.channel.type === 'dm' || message.channel.type === 'news')
+            return
+
+        Database.incrementInfo(message.author.id, 'messages')
+
+        if (message.author === bot.user)
+            return
+
+        Database.generateXP(message.author.id)
 
         if (message.content.startsWith('!')) {
             let found = false
@@ -56,9 +61,6 @@ bot.on('message', message => {
                 Database.incrementInfo(message.author.id, 'commands')
             }
         }
-
-        Database.incrementInfo(message.author.id, 'messages')
-        Database.generateXP(message.author.id)
     }).catch(err => console.error(err))
 })
 
@@ -88,19 +90,25 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
     // Prompt Command
     if (users.has(bot.user!.id)) {
-        let p = await Database.findPrompt(reaction.message.id)
-        let prompt = new Prompt(p.content, p.id, p.page, p.totalPages)
+        if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶') {
+            let p = await Database.findPrompt(reaction.message.id)
+            let prompt = new Prompt(p.content, p.id, p.page, p.totalPages)
+            reaction.users.remove(user as Discord.User)
 
-        switch (reaction.emoji.name) {
-            case '◀':
-                prompt.previousPage(reaction.message)
-                reaction.users.remove(user as Discord.User)
-                break;
+            switch (reaction.emoji.name) {
+                case '◀':
+                    prompt.previousPage(reaction.message)
+                    break;
 
-            case '▶':
-                prompt.nextPage(reaction.message)
-                reaction.users.remove(user as Discord.User)
-                break;
+                case '▶':
+                    prompt.nextPage(reaction.message)
+                    break;
+            }
+        } else {
+            let a = await Database.findAssigner(reaction.message.id)
+            let assigner = new Assigner(a.title, a.description, a.reactionRoles, a.id)
+
+            assigner.assignRole(bot, reaction.message, reaction, user as Discord.User)
         }
     }
 })
