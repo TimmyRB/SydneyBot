@@ -1,13 +1,13 @@
-import * as Discord from 'discord.js'
+import { MessageEmbed, TextChannel, Message } from 'discord.js'
 import { Database } from '../../database/database';
 
 export default class Prompt {
     id: string;
     page: number;
     totalPages: number;
-    content: Discord.MessageEmbed[];
+    content: MessageEmbed[];
 
-    constructor(content: Discord.MessageEmbed[], id?: string, page?: number, totalPages?: number) {
+    constructor(content: MessageEmbed[], id?: string, page?: number, totalPages?: number) {
         if (id)
             this.id = id
         else
@@ -26,7 +26,7 @@ export default class Prompt {
         this.content = content
     }
 
-    show(channel: Discord.TextChannel) {
+    show(channel: TextChannel) {
         channel.send(this.content[0]).then(message => {
             Database.createPrompt(message.id, this.content)
 
@@ -36,7 +36,7 @@ export default class Prompt {
         })
     }
 
-    nextPage(message: Discord.Message) {
+    nextPage(message: Message) {
         if (this.id === '0')
             return
 
@@ -51,7 +51,7 @@ export default class Prompt {
         Database.nextPage(this.id)
     }
 
-    previousPage(message: Discord.Message) {
+    previousPage(message: Message) {
         if (this.id === '0')
             return
 

@@ -1,10 +1,10 @@
 import { DataTypes, Model } from 'sequelize-cockroachdb';
-import * as Discord from 'discord.js'
+import { MessageEmbed } from 'discord.js'
 import { sequelize } from '../../config/config'
 
 export class Prompts extends Model {
   id!: string;
-  content!: Discord.MessageEmbed[];
+  content!: MessageEmbed[];
   page!: number;
   totalPages!: number;
 

@@ -1,8 +1,8 @@
 import * as databaseModels from '../models/database'
-import * as Discord from 'discord.js'
-import { where } from 'sequelize'
+import { MessageEmbed, EmojiResolvable } from 'discord.js'
 const Users = databaseModels.Users
 const Prompts = databaseModels.Prompts
+const Assigners = databaseModels.Assigners
 
 type InfoType = 'commands' | 'messages' | 'warns'
 
@@ -110,7 +110,7 @@ export class Database {
    * Add a prompt to the Database to keep track of it
    * @param content array of Discord Embeds
    */
-  static createPrompt(id: string, content: Discord.MessageEmbed[]) {
+  static createPrompt(id: string, content: MessageEmbed[]) {
     let unparsed: string[] = []
 
     content.forEach(c => {
@@ -147,7 +147,45 @@ export class Database {
           rej('Prompt was null')
 
         for (let i = 0; i < data!.content.length; i++) {
-          data!.content[i] = new Discord.MessageEmbed(JSON.parse(data!.content[i] as unknown as string))
+          data!.content[i] = new MessageEmbed(JSON.parse(data!.content[i] as unknown as string))
+        }
+
+        res(data!)
+      }).catch(err => rej(err))
+    })
+
+    return promise
+  }
+
+  /**
+   * Add an Assigner to the Database
+   * @param id id of the Assigner
+   * @param title title of the Embed
+   * @param description description of the Embed
+   * @param reactionRoles roles to be assigned when User reacts
+   */
+  static createAssigner(id: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[]) {
+    let unparsed: string[] = []
+
+    reactionRoles.forEach(rRole => {
+      unparsed.push(JSON.stringify(rRole))
+    })
+
+    Assigners.create({ id: id, title: title, description: description, reactionRoles: unparsed }).catch(err => console.error(err))
+  }
+
+  /**
+   * Find Assigner from the Database and return it
+   * @param id id to search for existing Assigner by
+   */
+  static findAssigner(id: string): Promise<databaseModels.Assigners> {
+    let promise = new Promise<databaseModels.Assigners>((res, rej) => {
+      Assigners.findByPk(id).then(data => {
+        if (!data)
+          rej('Assigner was null')
+
+        for (let i = 0; i < data!.reactionRoles.length; i++) {
+          data!.reactionRoles[i] = JSON.parse(data!.reactionRoles[i] as unknown as string)
         }
 
         res(data!)

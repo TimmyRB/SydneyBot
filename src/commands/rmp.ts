@@ -1,7 +1,6 @@
-import { Database } from '../../lib/database/database';
 import Command from '../../lib/models/bot/command.model';
-import * as Discord from 'discord.js';
-import { HTMLElement, parse } from 'node-html-parser';
+import { MessageEmbed, TextChannel } from 'discord.js';
+import { parse } from 'node-html-parser';
 import Axios from 'axios';
 import Prompt from '../../lib/models/bot/prompt.model';
 
@@ -89,13 +88,13 @@ export const RMP = new Command('rmp', [], (message, args, dbUser) => {
                 // Check if there was more than one professor found
                 if (foundProfs.length > 1) {
                     // Create a variable that will hold fields
-                    let embeds: Discord.MessageEmbed[] = []
+                    let embeds: MessageEmbed[] = []
                     let profsProcessed = 0
 
                     // Iterate over each of the found professors
                     foundProfs.forEach((prof, i, a) => {
                         findProf(prof.id).then((p) => {
-                            embeds.push(new Discord.MessageEmbed({
+                            embeds.push(new MessageEmbed({
                                 title: `${p.name} - (${i + 1}/${a.length})`,
                                 url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${p.id}`,
                                 description: `Professor in the **${p.role}**`,
@@ -128,7 +127,7 @@ export const RMP = new Command('rmp', [], (message, args, dbUser) => {
                             profsProcessed++
                             if (profsProcessed === a.length) {
                                 embeds.reverse()
-                                showMultiple(embeds, message.channel as Discord.TextChannel)
+                                showMultiple(embeds, message.channel as TextChannel)
                             }
                         }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
                     })
@@ -138,7 +137,7 @@ export const RMP = new Command('rmp', [], (message, args, dbUser) => {
                     findProf(foundProfs[0].id).then(prof => {
                         // Formulate the professor embed
                         let profEmbed = new Prompt([
-                            new Discord.MessageEmbed({
+                            new MessageEmbed({
                                 title: `${prof.name}`,
                                 url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${prof.id}`,
                                 description: `Professor in the **${prof.role}**`,
@@ -169,7 +168,7 @@ export const RMP = new Command('rmp', [], (message, args, dbUser) => {
                             })
                         ]);
 
-                        profEmbed.show(message.channel as Discord.TextChannel)
+                        profEmbed.show(message.channel as TextChannel)
                     }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
                 }
             });
@@ -266,7 +265,7 @@ function findProf(findId: number): Promise<Prof> {
     return promise
 }
 
-function showMultiple(embeds: Discord.MessageEmbed[], channel: Discord.TextChannel) {
+function showMultiple(embeds: MessageEmbed[], channel: TextChannel) {
     let profsEmbed = new Prompt(embeds)
     profsEmbed.show(channel)
 }
