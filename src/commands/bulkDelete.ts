@@ -1,6 +1,5 @@
 import { TextChannel } from 'discord.js'
 import Command from '../../lib/models/bot/command.model';
-import { HelpMenu } from '../prompts';
 
 export const BulkDelete = new Command('cleanup', [], (message, args, dbUser) => {
     let amount: number = parseInt(args[0], 10)
