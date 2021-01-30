@@ -89,7 +89,7 @@ export default class Assigner {
 
         bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
             let member = members.find(m => m.user === user)
-            let firstRole = member?.roles.cache.size === 0
+            let firstRole = member?.roles.cache.size === 1
 
             member?.roles.remove(removeRoles).then(() => {
                 member?.roles.add(foundRole!).then(() => {
