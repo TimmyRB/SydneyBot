@@ -204,14 +204,14 @@ bot.on('messageUpdate', async message => {
         try {
             await message.fetch()
         } catch (err) {
-            Logger.error(message.author!.id, 'reaction.fetch', err)
+            Logger.error(message.id, 'reaction.fetch', err)
             return
         }
     }
 
     Database.findUser(message.author!.id).then(dbUser => {
         if (dbUser.muted) {
-            message.delete()
+            message.delete().catch(err => Logger.error(message.author!.id, 'message.delete', err))
             return
         }
     }).catch(err => Logger.error(message.author!.id, 'Database.findUser', err))
