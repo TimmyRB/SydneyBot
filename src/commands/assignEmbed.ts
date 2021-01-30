@@ -1,8 +1,8 @@
-import { TextChannel } from 'discord.js'
+import { Permissions, TextChannel } from 'discord.js'
 import Assigner from '../../lib/models/bot/assigner.model';
 import Command from '../../lib/models/bot/command.model';
 
-export const AssignEmbed = new Command('assignembed', [], (message, args, dbUser) => {
+export const AssignEmbed = new Command('assignembed', 'Creates a Role Assignment Embed', '!assignEmbed', new Permissions('MANAGE_ROLES'), (message, args, dbUser) => {
     let roleAssigner = new Assigner('Role Assignment Info', 'Click a corresponding reaction to set your year & campus and gain access to the other channels!', [
         {
             groupId: 0,
@@ -48,6 +48,6 @@ export const AssignEmbed = new Command('assignembed', [], (message, args, dbUser
         }
     ])
 
-    roleAssigner.show(message.channel as TextChannel)
+    roleAssigner.show(message.channel, message.author.id)
     message.delete()
 })

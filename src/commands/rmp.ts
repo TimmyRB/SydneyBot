@@ -1,5 +1,5 @@
 import Command from '../../lib/models/bot/command.model';
-import { MessageEmbed, TextChannel } from 'discord.js';
+import { DMChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
 import { parse } from 'node-html-parser';
 import Axios from 'axios';
 import Prompt from '../../lib/models/bot/prompt.model';
@@ -14,7 +14,7 @@ interface Prof {
     role: string
 }
 
-export const RMP = new Command('rmp', [], (message, args, dbUser) => {
+export const RMP = new Command('rmp', 'Finds and Displays information on a Professor from RateMyProfessor', '!rmp <professor: string | number>', new Permissions(), (message, args, dbUser) => {
     // Check to see if the user has passed an argument
     if (args.length === 0) {
         // React to the message with a question mark as the command wasn't used properly
@@ -127,7 +127,7 @@ export const RMP = new Command('rmp', [], (message, args, dbUser) => {
                             profsProcessed++
                             if (profsProcessed === a.length) {
                                 embeds.reverse()
-                                showMultiple(embeds, message.channel as TextChannel)
+                                showMultiple(embeds, message.channel, message.author.id)
                             }
                         }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
                     })
@@ -168,7 +168,7 @@ export const RMP = new Command('rmp', [], (message, args, dbUser) => {
                             })
                         ]);
 
-                        profEmbed.show(message.channel as TextChannel)
+                        profEmbed.show(message.channel, message.author.id)
                     }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
                 }
             });
@@ -265,7 +265,7 @@ function findProf(findId: number): Promise<Prof> {
     return promise
 }
 
-function showMultiple(embeds: MessageEmbed[], channel: TextChannel) {
+function showMultiple(embeds: MessageEmbed[], channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
     let profsEmbed = new Prompt(embeds)
-    profsEmbed.show(channel)
+    profsEmbed.show(channel, uuid)
 }

@@ -1,5 +1,6 @@
-import { Client, EmbedField, EmojiResolvable, Message, MessageEmbed, MessageReaction, Role, TextChannel, User } from 'discord.js';
+import { Client, DMChannel, EmbedField, EmojiResolvable, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import { Database } from '../../database/database';
+import { Logger } from '../../database/logger';
 
 export default class Assigner {
     id: string;
@@ -29,7 +30,7 @@ export default class Assigner {
             this.description = ''
     }
 
-    show(channel: TextChannel) {
+    show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
         let fields: EmbedField[] = []
 
         this.reactionRoles.forEach(rRole => {
@@ -47,7 +48,7 @@ export default class Assigner {
         })
 
         channel.send(embed).then(msg => {
-            Database.createAssigner(msg.id, this.title, this.description, this.reactionRoles)
+            Database.createAssigner(msg.id, uuid, this.title, this.description, this.reactionRoles)
             this.reactionRoles.forEach(async rRole => {
                 await msg.react(rRole.emoji)
             })
@@ -87,9 +88,9 @@ export default class Assigner {
 
             member?.roles.remove(removeRoles).then(() => {
                 member?.roles.add(foundRole!).then(() => {
-                    reaction.users.remove(user).catch(err => console.error(err))
-                }).catch(err => console.error(err))
-            }).catch(err => console.error(err))
-        }).catch(err => console.error(err))
+                    reaction.users.remove(user).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
+                }).catch(err => Logger.error(user.id, 'member.roles.add', err))
+            }).catch(err => Logger.error(user.id, 'member.roles.remove', err))
+        }).catch(err => Logger.error(user.id, 'members.fetch', err))
     }
 }

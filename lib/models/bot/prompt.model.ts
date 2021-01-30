@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel, Message } from 'discord.js'
+import { MessageEmbed, TextChannel, Message, DMChannel, NewsChannel } from 'discord.js'
 import { Database } from '../../database/database';
 
 export default class Prompt {
@@ -26,9 +26,9 @@ export default class Prompt {
         this.content = content
     }
 
-    show(channel: TextChannel) {
+    show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
         channel.send(this.content[0]).then(message => {
-            Database.createPrompt(message.id, this.content)
+            Database.createPrompt(message.id, this.content, uuid)
 
             if (this.content.length > 1) {
                 message.react('◀').then(() => message.react('▶'))
@@ -48,7 +48,7 @@ export default class Prompt {
 
         this.page++;
         message.edit(this.content[this.page])
-        Database.nextPage(this.id)
+        Database.nextPage(this.id, message.author.id)
     }
 
     previousPage(message: Message) {
@@ -63,6 +63,6 @@ export default class Prompt {
 
         this.page--;
         message.edit(this.content[this.page])
-        Database.previousPage(this.id)
+        Database.previousPage(this.id, message.author.id)
     }
 }

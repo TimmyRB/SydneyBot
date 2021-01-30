@@ -1,9 +1,10 @@
-import { MessageEmbed, TextChannel } from 'discord.js';
+import { DMChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
 import { Database } from '../../lib/database/database';
+import { Logger } from '../../lib/database/logger';
 import Command from '../../lib/models/bot/command.model';
 import Prompt from '../../lib/models/bot/prompt.model';
 
-export const Info = new Command('info', [], (message, args, dbUser) => {
+export const Info = new Command('info', 'Displays information on User(s) or TextChannel(s)', '!info <mentions: User[] | TextChannel[]>', new Permissions(), (message, args, dbUser) => {
     let pages: MessageEmbed[] = []
     let profsProcessed = 0
 
@@ -65,21 +66,21 @@ export const Info = new Command('info', [], (message, args, dbUser) => {
                         inline: true
                     },
                     {
-                        name: '**Roles**',
-                        value: member.roles.cache.filter(role => role.name !== '@' + 'everyone').size > 0 ? member.roles.cache.filter(role => role.name !== '@' + 'everyone').map(role => `${role}`).join(', ') : 'None'
+                        name: 'Roles',
+                        value: member.roles.cache.filter(role => role.name !== '@' + 'everyone').size > 0 ? member.roles.cache.filter(role => role.name !== '@' + 'everyone').map(role => `${role}`).reverse().join(', ') : 'None'
                     }
                 ]
             }))
 
             profsProcessed++
             if (profsProcessed === a.size) {
-                showPrompt(pages, message.channel as TextChannel)
+                showPrompt(pages, message.channel, message.author.id)
             }
-        }).catch(err => console.error(err))
+        }).catch(err => Logger.error(message.author.id, 'Database.findUser', err))
     })
 })
 
-function showPrompt(pages: MessageEmbed[], channel: TextChannel) {
+function showPrompt(pages: MessageEmbed[], channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
     let prompt = new Prompt(pages)
-    prompt.show(channel)
+    prompt.show(channel, uuid)
 }
