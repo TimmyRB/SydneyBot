@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Database class for interfacing with Database
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:35:52 
+ * Last modified  : 2021-01-30 17:36:12
+ */
+
 import * as databaseModels from '../models/database'
 import { MessageEmbed, EmojiResolvable } from 'discord.js'
 import { Logger } from './logger'

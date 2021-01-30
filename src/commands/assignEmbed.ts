@@ -1,4 +1,16 @@
-import { Permissions, TextChannel } from 'discord.js'
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Creates Embed for Year Role Assignment
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:38:20 
+ * Last modified  : 2021-01-30 17:39:11
+ */
+
+import { Permissions } from 'discord.js'
 import Assigner from '../../lib/models/bot/assigner.model';
 import Command from '../../lib/models/bot/command.model';
 

@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Unmutes a user
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:42:29 
+ * Last modified  : 2021-01-30 17:42:53
+ */
+
 import { Permissions, GuildMember, MessageEmbed, TextChannel } from 'discord.js'
 import { Database } from '../../lib/database/database';
 import Command from '../../lib/models/bot/command.model';

@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Bot Model of a Command
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:34:02 
+ * Last modified  : 2021-01-30 17:34:02 
+ */
+
 import { Permissions, Message, GuildMember, BitFieldResolvable, PermissionString } from 'discord.js';
 import { Logger } from '../../database/logger';
 import * as databaseModels from '../database'
@@ -25,7 +37,11 @@ export default class Command {
     this.callback = callback;
   }
 
-  private verifyPermissions(member: GuildMember | null) {
+  /**
+   * Checks if GuildMember has command's permissions
+   * @param member the GuildMember to check agaisnt
+   */
+  private verifyPermissions(member: GuildMember | null): false | Permissions {
     if (member === null)
       return false
 
@@ -37,6 +53,11 @@ export default class Command {
     return missingPermissions
   }
 
+  /**
+   * Run the command
+   * @param message message where the command was called
+   * @param dbUser the user from the Database
+   */
   run(message: Message, dbUser: databaseModels.Users): boolean {
     let args = message.content.trim().toLowerCase().slice(1).split(' ')
     let command = args.shift()

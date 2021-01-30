@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Bot Model of an Assigner
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:33:40 
+ * Last modified  : 2021-01-30 17:33:58
+ */
+
 import { Client, DMChannel, EmbedField, EmojiResolvable, Guild, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import { Database } from '../../database/database';
 import { Logger } from '../../database/logger';
@@ -9,6 +21,14 @@ export default class Assigner {
     reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[];
     welcomeChannelId: string | undefined;
 
+    /**
+     * Create new Assigner
+     * @param title Assigner Title
+     * @param description Assigner Description
+     * @param reactionRoles Roles that can be assigned
+     * @param id id of the sent Assigner Message
+     * @param welcomeChannelId id of a welcome channel to send when a new user assigns roles
+     */
     constructor(title?: string, description?: string, reactionRoles?: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[], id?: string, welcomeChannelId?: string) {
         if (id)
             this.id = id
@@ -34,6 +54,11 @@ export default class Assigner {
             this.welcomeChannelId = welcomeChannelId
     }
 
+    /**
+     * Show Assigner Embed
+     * @param channel channel to send it to
+     * @param uuid uuid of the user requesting the Assigner
+     */
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
         let fields: EmbedField[] = []
 
@@ -59,6 +84,13 @@ export default class Assigner {
         })
     }
 
+    /**
+     * Assign a Role to the User
+     * @param bot the bot client
+     * @param message the message reacted to
+     * @param reaction the reaction that the user reacted with
+     * @param user the user who reacted
+     */
     assignRole(bot: Client, message: Message, reaction: MessageReaction, user: User) {
         if (this.id === '0')
             return
@@ -94,7 +126,7 @@ export default class Assigner {
             member?.roles.remove(removeRoles).then(() => {
                 member?.roles.add(foundRole!).then(() => {
                     reaction.users.remove(user).then(() => {
-                        if (firstRole && this.welcomeChannelId) {
+                        if (firstRole && this.welcomeChannelId !== undefined) {
                             let channel = bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.channels.cache.find(c => c.id === this.welcomeChannelId) as TextChannel
                             channel.send(`Welcome ${user} to the\n**Sheridan SDNE Discord!**`)
                         }

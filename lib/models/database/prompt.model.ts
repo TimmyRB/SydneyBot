@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Database Model for Prompts
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:37:30 
+ * Last modified  : 2021-01-30 17:37:30 
+ */
+
 import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { MessageEmbed } from 'discord.js'
 import { sequelize } from '../../config/config'

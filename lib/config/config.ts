@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Config for Database connection & Model sync
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:34:46 
+ * Last modified  : 2021-01-30 17:35:40
+ */
+
 import { readFileSync } from 'fs';
 import { Sequelize } from 'sequelize-cockroachdb';
 

@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Bot Model of a Prompt
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:34:23 
+ * Last modified  : 2021-01-30 17:34:41
+ */
+
 import { MessageEmbed, TextChannel, Message, DMChannel, NewsChannel } from 'discord.js'
 import { Database } from '../../database/database';
 
@@ -7,6 +19,13 @@ export default class Prompt {
     totalPages: number;
     content: MessageEmbed[];
 
+    /**
+     * Creates new Prompt
+     * @param content array of Embeds that act as pages
+     * @param id id of the sent Discord Message
+     * @param page current page index
+     * @param totalPages total pages
+     */
     constructor(content: MessageEmbed[], id?: string, page?: number, totalPages?: number) {
         if (id)
             this.id = id
@@ -26,6 +45,11 @@ export default class Prompt {
         this.content = content
     }
 
+    /**
+     * Show prompt
+     * @param channel the channel to send to prompt to
+     * @param uuid uuid of the user requesting the prompt
+     */
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
         channel.send(this.content[0]).then(message => {
             Database.createPrompt(message.id, this.content, uuid)
@@ -36,6 +60,10 @@ export default class Prompt {
         })
     }
 
+    /**
+     * Increase the page index
+     * @param message the prompt as a Discord Message
+     */
     nextPage(message: Message) {
         if (this.id === '0')
             return
@@ -51,6 +79,10 @@ export default class Prompt {
         Database.nextPage(this.id, message.author.id)
     }
 
+    /**
+     * Decrease the page index
+     * @param message the prompt as a Discord Message
+     */
     previousPage(message: Message) {
         if (this.id === '0')
             return

@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Database Model for Logs
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:37:13 
+ * Last modified  : 2021-01-30 17:37:13 
+ */
+
 import { DataTypes, Model, Sequelize, UUIDV4 } from 'sequelize-cockroachdb';
 import { sequelize } from '../../config/config'
 

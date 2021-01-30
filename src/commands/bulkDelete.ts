@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Deletes messages in bulk from a Channel
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:39:47 
+ * Last modified  : 2021-01-30 17:40:11
+ */
+
 import { Permissions, TextChannel } from 'discord.js'
 import Command from '../../lib/models/bot/command.model';
 

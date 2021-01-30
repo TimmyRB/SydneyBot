@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Finds a Prof and Display's their RateMyProf stats
+ * @author Jacob Brasil
+ * @author N3rdP1um23
+ *
+ * Created at     : 2021-01-30 17:41:55 
+ * Last modified  : 2021-01-30 17:42:14
+ */
+
 import Command from '../../lib/models/bot/command.model';
 import { DMChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
 import { parse } from 'node-html-parser';

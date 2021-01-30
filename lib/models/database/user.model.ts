@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Database Model for a User
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:37:52 
+ * Last modified  : 2021-01-30 17:37:52 
+ */
+
 import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { sequelize } from './index'
 

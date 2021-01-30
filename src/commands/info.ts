@@ -1,6 +1,18 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Displays User(s)' or Channel(s)' info
+ * @author Jacob Brasil
+ * @author N3rdP1um23
+ *
+ * Created at     : 2021-01-30 17:40:23 
+ * Last modified  : 2021-01-30 17:41:07
+ */
+
 import { DMChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
 import { Database } from '../../lib/database/database';
-import { Logger } from '../../lib/database/logger';
 import Command from '../../lib/models/bot/command.model';
 import Prompt from '../../lib/models/bot/prompt.model';
 

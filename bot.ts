@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Main file for the Bot
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:43:13 
+ * Last modified  : 2021-01-30 17:43:33
+ */
+
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -7,7 +19,6 @@ import * as Commands from './src/commands';
 import { Database } from './lib/database/database';
 import Prompt from './lib/models/bot/prompt.model';
 import Assigner from './lib/models/bot/assigner.model';
-import { cpuUsage } from 'process';
 import { Logger } from './lib/database/logger';
 
 const bot = new Discord.Client({ partials: ['MESSAGE', 'REACTION'] });

@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021 Jacob Brasil
+ *
+ * MIT
+ *
+ * @summary Database Model for Assigners
+ * @author Jacob Brasil
+ *
+ * Created at     : 2021-01-30 17:33:03 
+ * Last modified  : 2021-01-30 17:33:18
+ */
+
 import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { EmojiResolvable } from 'discord.js'
 import { sequelize } from '../../config/config'
