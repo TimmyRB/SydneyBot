@@ -1,4 +1,4 @@
-import { Client, DMChannel, EmbedField, EmojiResolvable, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
+import { Client, DMChannel, EmbedField, EmojiResolvable, Guild, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import { Database } from '../../database/database';
 import { Logger } from '../../database/logger';
 
@@ -7,8 +7,9 @@ export default class Assigner {
     title: string;
     description: string;
     reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[];
+    callback: (user: User, guild: Guild, firstRole: boolean) => void;
 
-    constructor(title?: string, description?: string, reactionRoles?: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[], id?: string) {
+    constructor(title?: string, description?: string, reactionRoles?: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[], id?: string, callback?: (user: User, guild: Guild, firstRole: boolean) => void) {
         if (id)
             this.id = id
         else
@@ -28,6 +29,11 @@ export default class Assigner {
             this.description = description
         else
             this.description = ''
+
+        if (callback)
+            this.callback = callback
+        else
+            this.callback = () => {}
     }
 
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
@@ -85,10 +91,12 @@ export default class Assigner {
 
         bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
             let member = members.find(m => m.user === user)
+            let firstRole = member?.roles.cache.size === 0
 
             member?.roles.remove(removeRoles).then(() => {
                 member?.roles.add(foundRole!).then(() => {
                     reaction.users.remove(user).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
+                    this.callback(user, bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)!, firstRole)
                 }).catch(err => Logger.error(user.id, 'member.roles.add', err))
             }).catch(err => Logger.error(user.id, 'member.roles.remove', err))
         }).catch(err => Logger.error(user.id, 'members.fetch', err))
