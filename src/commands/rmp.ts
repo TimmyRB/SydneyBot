@@ -126,7 +126,6 @@ export const RMP = new Command('rmp', 'Finds and Displays information on a Profe
 
                             profsProcessed++
                             if (profsProcessed === a.length) {
-                                embeds.reverse()
                                 showMultiple(embeds, message.channel, message.author.id)
                             }
                         }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
