@@ -46,12 +46,7 @@ export const AssignEmbed = new Command('assignembed', 'Creates a Role Assignment
             emoji: '2️⃣',
             roleId: '620641321908043798'
         }
-    ], '0', (user, guild, firstRole) => {
-        if (firstRole) {
-            let channel = guild.channels.cache.find(c => c.id === '619560877405896716') as TextChannel
-            channel.send(`Welcome ${user} to the\n**Sheridan SDNE Server!**`)
-        }
-    })
+    ], '0', '619560877405896716')
 
     roleAssigner.show(message.channel, message.author.id)
     message.delete()

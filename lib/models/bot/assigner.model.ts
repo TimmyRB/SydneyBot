@@ -7,9 +7,9 @@ export default class Assigner {
     title: string;
     description: string;
     reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[];
-    callback: (user: User, guild: Guild, firstRole: boolean) => void;
+    welcomeChannelId: string | undefined;
 
-    constructor(title?: string, description?: string, reactionRoles?: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[], id?: string, callback?: (user: User, guild: Guild, firstRole: boolean) => void) {
+    constructor(title?: string, description?: string, reactionRoles?: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[], id?: string, welcomeChannelId?: string) {
         if (id)
             this.id = id
         else
@@ -30,10 +30,8 @@ export default class Assigner {
         else
             this.description = ''
 
-        if (callback)
-            this.callback = callback
-        else
-            this.callback = () => {}
+        if (welcomeChannelId)
+            this.welcomeChannelId = welcomeChannelId
     }
 
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
@@ -95,8 +93,12 @@ export default class Assigner {
 
             member?.roles.remove(removeRoles).then(() => {
                 member?.roles.add(foundRole!).then(() => {
-                    reaction.users.remove(user).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
-                    this.callback(user, bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)!, firstRole)
+                    reaction.users.remove(user).then(() => {
+                        if (firstRole && this.welcomeChannelId) {
+                            let channel = bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.channels.cache.find(c => c.id === this.welcomeChannelId) as TextChannel
+                            channel.send(`Welcome ${user} to the\n**Sheridan SDNE Discord!**`)
+                        }
+                    }).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
                 }).catch(err => Logger.error(user.id, 'member.roles.add', err))
             }).catch(err => Logger.error(user.id, 'member.roles.remove', err))
         }).catch(err => Logger.error(user.id, 'members.fetch', err))
