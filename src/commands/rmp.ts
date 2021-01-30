@@ -95,7 +95,7 @@ export const RMP = new Command('rmp', 'Finds and Displays information on a Profe
                     foundProfs.forEach((prof, i, a) => {
                         findProf(prof.id).then((p) => {
                             embeds.push(new MessageEmbed({
-                                title: `${p.name} - (${i + 1}/${a.length})`,
+                                title: `${p.name} - Page (${embeds.length + 1} / ${a.length})`,
                                 url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${p.id}`,
                                 description: `Professor in the **${p.role}**`,
                                 color: 4886754,
