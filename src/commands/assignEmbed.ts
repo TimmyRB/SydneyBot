@@ -8,43 +8,43 @@ export const AssignEmbed = new Command('assignembed', 'Creates a Role Assignment
             groupId: 0,
             name: 'Prospective Student',
             emoji: '🔮',
-            roleId: '803857268868251665'
+            roleId: '788394400715767808'
         },
         {
             groupId: 1,
             name: '1st Year',
             emoji: '📗',
-            roleId: '803857268868251666'
+            roleId: '619581998574469120'
         },
         {
             groupId: 1,
             name: '2nd Year',
             emoji: '📘',
-            roleId: '803857268868251667'
+            roleId: '619582112936362020'
         },
         {
             groupId: 1,
             name: '3rd Year',
             emoji: '📙',
-            roleId: '803857269107982366'
+            roleId: '619582159899852802'
         },
         {
             groupId: 1,
             name: 'Alumni',
             emoji: '🧾',
-            roleId: '803857269107982367'
+            roleId: '619582173522952233'
         },
         {
             groupId: 2,
             name: 'Trafalgar',
             emoji: '1️⃣',
-            roleId: '803857268868251664'
+            roleId: '620641262101463070'
         },
         {
             groupId: 2,
             name: 'Davis',
             emoji: '2️⃣',
-            roleId: '803857268868251663'
+            roleId: '620641321908043798'
         }
     ])
 
