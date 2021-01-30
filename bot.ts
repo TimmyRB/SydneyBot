@@ -25,6 +25,8 @@ bot.on('ready', () => {
     console.log(`Logged in as ${bot.user?.tag}`)
     commands.sort((a, b) => { return a.permissions.toArray().length - b.permissions.toArray().length })
 
+    bot.user?.setActivity('for !help', { type: 'WATCHING' })
+
     let pages: Discord.MessageEmbed[] = []
     for (let i = 0; i < commands.length; i += 2) {
         pages.push(new Discord.MessageEmbed({
