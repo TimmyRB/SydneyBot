@@ -16,4 +16,4 @@ export const sequelize = new Sequelize({
     }
 });
 
-sequelize.sync({ force: true })
+sequelize.sync({ force: false })
