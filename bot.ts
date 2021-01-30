@@ -161,7 +161,9 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                         break;
 
                     case '❓':
+                        reaction.message.reactions.removeAll()
                         helpMenu.show(reaction.message.channel, user.id)
+                        break;
                 }
             } else {
                 Database.findAssigner(reaction.message.id).then(a => {
