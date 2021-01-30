@@ -185,6 +185,7 @@ bot.on('guildMemberAdd', member => {
         invites[member.guild.id] = guildInvites
         const invite = guildInvites.find(i => existingInvites.get(i.code)?.uses! < i.uses!)
         Database.setReferrer(member.id, invite!.inviter!.id!)
+        Database.addXP(invite!.inviter!.id!, 15)
         console.log(`Joined ${member.id}, Referrer: ${invite?.inviter?.id!}`)
     })
 })
