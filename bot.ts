@@ -134,7 +134,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
         // Prompt & Assigner Command
         if (users.has(bot.user!.id)) {
-            if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌') {
+            if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌' || reaction.emoji.name === '❓') {
                 switch (reaction.emoji.name) {
                     case '◀':
                         let p1 = await Database.findPrompt(reaction.message.id)
@@ -159,6 +159,9 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                         if (reaction.count === 16)
                             reaction.message.pin().catch(err => Logger.error(reaction.message.author.id, 'message.pin', err))
                         break;
+
+                    case '❓':
+                        helpMenu.show(reaction.message.channel, user.id)
                 }
             } else {
                 Database.findAssigner(reaction.message.id).then(a => {
