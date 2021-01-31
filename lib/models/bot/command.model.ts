@@ -7,7 +7,7 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:34:02 
- * Last modified  : 2021-01-30 21:35:49
+ * Last modified  : 2021-01-30 21:44:01
  */
 
 import { Permissions, Message, GuildMember } from 'discord.js';
@@ -79,7 +79,6 @@ export class Command {
 
     let missingPermissions = this.verifyPermissions(message.member)
     if (!missingPermissions || missingPermissions.toArray().length > 0) {
-      message.react('❓')
       return false
     }
 
