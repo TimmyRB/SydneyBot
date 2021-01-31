@@ -8,14 +8,13 @@
  * @author N3rdP1um23
  *
  * Created at     : 2021-01-30 17:41:55 
- * Last modified  : 2021-01-30 17:42:14
+ * Last modified  : 2021-01-30 21:23:56
  */
 
-import Command from '../../lib/models/bot/command.model';
+import { Command, Prompt } from '../../lib/models/bot';
 import { DMChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
 import { parse } from 'node-html-parser';
 import Axios from 'axios';
-import Prompt from '../../lib/models/bot/prompt.model';
 
 interface Prof {
     score?: number;
@@ -27,171 +26,179 @@ interface Prof {
     role: string
 }
 
-export const RMP = new Command('rmp', 'Finds and Displays information on a Professor from RateMyProfessor', '!rmp <professor: string | number>', new Permissions(), (message, args, dbUser) => {
-    // Check to see if the user has passed an argument
-    if (args.length === 0) {
-        // React to the message with a question mark as the command wasn't used properly
-        message.react('❓');
+export const RMP = new Command({
+    name: 'rmp',
+    desc: 'Finds and Displays information on a Professor from RateMyProfessor',
+    usage: '!rmp <professor: string | number>',
+    permissions: new Permissions(),
+    callback: (message, args, dbUser) => {
+        // Check to see if the user has passed an argument
+        if (args.length === 0) {
+            // React to the message with a question mark as the command wasn't used properly
+            message.react('❓');
 
-        // Return to stop further processing
-        return;
-    }
-
-    // Create the required variables
-    let professor: string = args.join(' ');
-    let findId = Number(professor);
-
-    // Check to see if the id isn't a number
-    if (isNaN(findId)) {
-        // Parse the professors name and clear the original professor name
-        let names: string[] = professor.split(' ');
-        professor = '';
-
-        // Iterate over each of the names and format the query string
-        names.forEach((n, i) => {
-            // Check to see if the index is matching
-            if (i == names.length - 1) {
-                // Set the professor query id
-                professor += n;
-            } else {
-                // Append the professor query id
-                professor += `${n}+`;
-            }
-        })
-
-        // Prepare the search url
-        let profSearchURL: string = `https://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Sheridan+College&schoolID=&query=${professor}`;
-
-        // Attempt the query
-        try {
-            // Initialize the request
-            Axios.get(profSearchURL).then(result => {
-                // Parse the result data and see if there are any profressor class items
-                let listings = parse(result.data).querySelectorAll('.PROFESSOR');
-
-                // Check to see if there aren't any found professors
-                if (listings.length < 1) {
-                    // Reply with a message that the professor may be mis-spelt and return to stop further processinf
-                    message.reply('I had trouble finding that professor. Please double check your spelling!');
-                    return;
-                }
-
-                // Create an array that will hold all found professors
-                let foundProfs: Prof[] = []
-
-                // Iterate over each of the professor listings
-                listings.forEach((l, i) => {
-                    // Create the requried variables and strip the reuqired information
-                    let url = l.querySelector('a').getAttribute("href")
-                    let id = Number(url!.slice(21))
-                    let name = l.querySelector('.main').text
-                    let role = l.querySelector('.sub').text
-
-                    // Push the found professor to the foundProfs array
-                    foundProfs.push({ id: id, name: name, role: role })
-                });
-
-                // Check to see if no professors were found
-                if (foundProfs.length == 0) {
-                    // Reply to the user with an error message that the profeessor wasn't found and return to stop further processing
-                    message.reply('I had trouble finding that professor. Please double check your spelling!');
-                    return;
-                }
-
-                // Check if there was more than one professor found
-                if (foundProfs.length > 1) {
-                    // Create a variable that will hold fields
-                    let embeds: MessageEmbed[] = []
-                    let profsProcessed = 0
-
-                    // Iterate over each of the found professors
-                    foundProfs.forEach((prof, i, a) => {
-                        findProf(prof.id).then((p) => {
-                            embeds.push(new MessageEmbed({
-                                title: `${p.name} - Page (${embeds.length + 1} / ${a.length})`,
-                                url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${p.id}`,
-                                description: `Professor in the **${p.role}**`,
-                                color: 4886754,
-                                footer: {
-                                    icon_url: "https://www.ratemyprofessors.com/images/favicon-32.png",
-                                    text: "RateMyProfessors"
-                                },
-                                thumbnail: {
-                                    url: `https://dummyimage.com/256x256/fff.png&text=${p.score}`
-                                },
-                                fields: [
-                                    {
-                                        name: "🔁 Would Retake?",
-                                        value: `\`\`\`${p.retake} say YES\`\`\``,
-                                        inline: true
-                                    },
-                                    {
-                                        name: "⛓ Difficulty",
-                                        value: `\`\`\`${p.level} / 5\`\`\``,
-                                        inline: true
-                                    },
-                                    {
-                                        name: "🗨 Top Review",
-                                        value: `\`\`\`${p.highlightReview}\`\`\``
-                                    }
-                                ]
-                            }))
-
-                            profsProcessed++
-                            if (profsProcessed === a.length) {
-                                showMultiple(embeds, message.channel, message.author.id)
-                            }
-                        }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
-                    })
-
-                } else {
-                    // Call the function to handle displaying the single professor
-                    findProf(foundProfs[0].id).then(prof => {
-                        // Formulate the professor embed
-                        let profEmbed = new Prompt([
-                            new MessageEmbed({
-                                title: `${prof.name}`,
-                                url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${prof.id}`,
-                                description: `Professor in the **${prof.role}**`,
-                                color: 4886754,
-                                footer: {
-                                    icon_url: "https://www.ratemyprofessors.com/images/favicon-32.png",
-                                    text: "RateMyProfessors"
-                                },
-                                thumbnail: {
-                                    url: `https://dummyimage.com/256x256/fff.png&text=${prof.score}`
-                                },
-                                fields: [
-                                    {
-                                        name: "🔁 Would Retake?",
-                                        value: `\`\`\`${prof.retake} say YES\`\`\``,
-                                        inline: true
-                                    },
-                                    {
-                                        name: "⛓ Difficulty",
-                                        value: `\`\`\`${prof.level} / 5\`\`\``,
-                                        inline: true
-                                    },
-                                    {
-                                        name: "🗨 Top Review",
-                                        value: `\`\`\`${prof.highlightReview}\`\`\``
-                                    }
-                                ]
-                            })
-                        ]);
-
-                        profEmbed.show(message.channel, message.author.id)
-                    }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
-                }
-            });
-        } catch (exception) {
-            // Reply with an error, log the exception, and then return to stop further processing
-            message.reply('I had trouble finding that professor. Please double check your spelling!');
+            // Return to stop further processing
             return;
         }
-    } else {
-        // Call the function to handle displaying the single professor
-        findProf(findId)
+
+        // Create the required variables
+        let professor: string = args.join(' ');
+        let findId = Number(professor);
+
+        // Check to see if the id isn't a number
+        if (isNaN(findId)) {
+            // Parse the professors name and clear the original professor name
+            let names: string[] = professor.split(' ');
+            professor = '';
+
+            // Iterate over each of the names and format the query string
+            names.forEach((n, i) => {
+                // Check to see if the index is matching
+                if (i == names.length - 1) {
+                    // Set the professor query id
+                    professor += n;
+                } else {
+                    // Append the professor query id
+                    professor += `${n}+`;
+                }
+            })
+
+            // Prepare the search url
+            let profSearchURL: string = `https://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Sheridan+College&schoolID=&query=${professor}`;
+
+            // Attempt the query
+            try {
+                // Initialize the request
+                Axios.get(profSearchURL).then(result => {
+                    // Parse the result data and see if there are any profressor class items
+                    let listings = parse(result.data).querySelectorAll('.PROFESSOR');
+
+                    // Check to see if there aren't any found professors
+                    if (listings.length < 1) {
+                        // Reply with a message that the professor may be mis-spelt and return to stop further processinf
+                        message.reply('I had trouble finding that professor. Please double check your spelling!');
+                        return;
+                    }
+
+                    // Create an array that will hold all found professors
+                    let foundProfs: Prof[] = []
+
+                    // Iterate over each of the professor listings
+                    listings.forEach((l, i) => {
+                        // Create the requried variables and strip the reuqired information
+                        let url = l.querySelector('a').getAttribute("href")
+                        let id = Number(url!.slice(21))
+                        let name = l.querySelector('.main').text
+                        let role = l.querySelector('.sub').text
+
+                        // Push the found professor to the foundProfs array
+                        foundProfs.push({ id: id, name: name, role: role })
+                    });
+
+                    // Check to see if no professors were found
+                    if (foundProfs.length == 0) {
+                        // Reply to the user with an error message that the profeessor wasn't found and return to stop further processing
+                        message.reply('I had trouble finding that professor. Please double check your spelling!');
+                        return;
+                    }
+
+                    // Check if there was more than one professor found
+                    if (foundProfs.length > 1) {
+                        // Create a variable that will hold fields
+                        let embeds: MessageEmbed[] = []
+                        let profsProcessed = 0
+
+                        // Iterate over each of the found professors
+                        foundProfs.forEach((prof, i, a) => {
+                            findProf(prof.id).then((p) => {
+                                embeds.push(new MessageEmbed({
+                                    title: `${p.name} - Page (${embeds.length + 1} / ${a.length})`,
+                                    url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${p.id}`,
+                                    description: `Professor in the **${p.role}**`,
+                                    color: 4886754,
+                                    footer: {
+                                        icon_url: "https://www.ratemyprofessors.com/images/favicon-32.png",
+                                        text: "RateMyProfessors"
+                                    },
+                                    thumbnail: {
+                                        url: `https://dummyimage.com/256x256/fff.png&text=${p.score}`
+                                    },
+                                    fields: [
+                                        {
+                                            name: "🔁 Would Retake?",
+                                            value: `\`\`\`${p.retake} say YES\`\`\``,
+                                            inline: true
+                                        },
+                                        {
+                                            name: "⛓ Difficulty",
+                                            value: `\`\`\`${p.level} / 5\`\`\``,
+                                            inline: true
+                                        },
+                                        {
+                                            name: "🗨 Top Review",
+                                            value: `\`\`\`${p.highlightReview}\`\`\``
+                                        }
+                                    ]
+                                }))
+
+                                profsProcessed++
+                                if (profsProcessed === a.length) {
+                                    showMultiple(embeds, message.channel, message.author.id)
+                                }
+                            }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
+                        })
+
+                    } else {
+                        // Call the function to handle displaying the single professor
+                        findProf(foundProfs[0].id).then(prof => {
+                            // Formulate the professor embed
+                            let profEmbed = new Prompt({
+                                content: [
+                                    new MessageEmbed({
+                                        title: `${prof.name}`,
+                                        url: `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${prof.id}`,
+                                        description: `Professor in the **${prof.role}**`,
+                                        color: 4886754,
+                                        footer: {
+                                            icon_url: "https://www.ratemyprofessors.com/images/favicon-32.png",
+                                            text: "RateMyProfessors"
+                                        },
+                                        thumbnail: {
+                                            url: `https://dummyimage.com/256x256/fff.png&text=${prof.score}`
+                                        },
+                                        fields: [
+                                            {
+                                                name: "🔁 Would Retake?",
+                                                value: `\`\`\`${prof.retake} say YES\`\`\``,
+                                                inline: true
+                                            },
+                                            {
+                                                name: "⛓ Difficulty",
+                                                value: `\`\`\`${prof.level} / 5\`\`\``,
+                                                inline: true
+                                            },
+                                            {
+                                                name: "🗨 Top Review",
+                                                value: `\`\`\`${prof.highlightReview}\`\`\``
+                                            }
+                                        ]
+                                    })
+                                ]
+                            });
+
+                            profEmbed.show(message.channel, message.author.id)
+                        }).catch(err => message.reply('I had trouble finding that professor. Please double check your spelling!'))
+                    }
+                });
+            } catch (exception) {
+                // Reply with an error, log the exception, and then return to stop further processing
+                message.reply('I had trouble finding that professor. Please double check your spelling!');
+                return;
+            }
+        } else {
+            // Call the function to handle displaying the single professor
+            findProf(findId)
+        }
     }
 })
 
@@ -278,6 +285,6 @@ function findProf(findId: number): Promise<Prof> {
 }
 
 function showMultiple(embeds: MessageEmbed[], channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
-    let profsEmbed = new Prompt(embeds)
+    let profsEmbed = new Prompt({ content: embeds })
     profsEmbed.show(channel, uuid)
 }

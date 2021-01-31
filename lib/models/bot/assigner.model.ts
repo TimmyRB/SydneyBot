@@ -7,51 +7,46 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:33:40 
- * Last modified  : 2021-01-30 17:33:58
+ * Last modified  : 2021-01-30 21:17:36
  */
 
-import { Client, DMChannel, EmbedField, EmojiResolvable, Guild, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
+import { Client, DMChannel, EmbedField, EmojiResolvable, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import { Database } from '../../database/database';
 import { Logger } from '../../database/logger';
 
-export default class Assigner {
-    id: string;
-    title: string;
-    description: string;
-    reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[];
-    welcomeChannelId: string | undefined;
+interface AssignerOptions {
+    /** id of the Discord Message that is an Assigner */
+    id?: string;
+
+    /** Title of the Embed */
+    title?: string;
+
+    /** Description of the Embed */
+    description?: string;
+
+    /** Roles to be assigned based on reaction */
+    reactionRoles?: {
+        /** Roles of the same GroupId will override eachother, groupId of 0 will overwrite every other group */
+        groupId: number,
+        /** Name of role shown in Embed */
+        name: string,
+        /** Emoji that will assign role when reacted to */
+        emoji: EmojiResolvable,
+        /** Id of the Role to assign to the reactor */
+        roleId: string
+    }[];
+}
+
+export class Assigner {
+    data?: AssignerOptions;
 
     /**
      * Create new Assigner
-     * @param title Assigner Title
-     * @param description Assigner Description
-     * @param reactionRoles Roles that can be assigned
-     * @param id id of the sent Assigner Message
-     * @param welcomeChannelId id of a welcome channel to send when a new user assigns roles
+     * @param data Data to create assigner with
      */
-    constructor(title?: string, description?: string, reactionRoles?: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[], id?: string, welcomeChannelId?: string) {
-        if (id)
-            this.id = id
-        else
-            this.id = '0'
-
-        if (title)
-            this.title = title
-        else
-            this.title = ''
-
-        if (reactionRoles)
-            this.reactionRoles = reactionRoles
-        else
-            this.reactionRoles = []
-
-        if (description)
-            this.description = description
-        else
-            this.description = ''
-
-        if (welcomeChannelId)
-            this.welcomeChannelId = welcomeChannelId
+    constructor(data?: AssignerOptions) {
+        if (data)
+            this.data = data
     }
 
     /**
@@ -62,7 +57,7 @@ export default class Assigner {
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
         let fields: EmbedField[] = []
 
-        this.reactionRoles.forEach(rRole => {
+        this.data?.reactionRoles?.forEach(rRole => {
             fields.push({
                 name: rRole.emoji.toString(),
                 value: rRole.name,
@@ -71,14 +66,14 @@ export default class Assigner {
         })
 
         let embed: MessageEmbed = new MessageEmbed({
-            title: this.title,
-            description: this.description,
+            title: this.data?.title,
+            description: this.data?.description,
             fields: fields
         })
 
         channel.send(embed).then(msg => {
-            Database.createAssigner(msg.id, uuid, this.title, this.description, this.reactionRoles)
-            this.reactionRoles.forEach(async rRole => {
+            Database.createAssigner(msg.id, uuid, this.data?.title!, this.data?.description!, this.data?.reactionRoles!)
+            this.data?.reactionRoles?.forEach(async rRole => {
                 await msg.react(rRole.emoji)
             })
         })
@@ -92,18 +87,18 @@ export default class Assigner {
      * @param user the user who reacted
      */
     assignRole(bot: Client, message: Message, reaction: MessageReaction, user: User) {
-        if (this.id === '0')
+        if (this.data?.id === '0')
             return
 
-        if (message.id !== this.id)
+        if (message.id !== this.data?.id)
             return
 
-        let foundReactRole = this.reactionRoles.find(e => e.emoji.toString() == reaction.emoji.toString())
+        let foundReactRole = this.data?.reactionRoles?.find(e => e.emoji.toString() == reaction.emoji.toString())
         let foundRole = bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.roles.cache.find(r => r.id === foundReactRole?.roleId)
 
         let removeRoles: Role[] = []
 
-        this.reactionRoles.forEach(rRole => {
+        this.data?.reactionRoles?.forEach(rRole => {
             let r
 
             if (foundReactRole?.groupId === 0) {
@@ -125,12 +120,7 @@ export default class Assigner {
 
             member?.roles.remove(removeRoles).then(() => {
                 member?.roles.add(foundRole!).then(() => {
-                    reaction.users.remove(user).then(() => {
-                        if (firstRole && this.welcomeChannelId !== undefined) {
-                            let channel = bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.channels.cache.find(c => c.id === this.welcomeChannelId) as TextChannel
-                            channel.send(`Welcome ${user} to the\n**Sheridan SDNE Discord!**`)
-                        }
-                    }).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
+                    reaction.users.remove(user).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
                 }).catch(err => Logger.error(user.id, 'member.roles.add', err))
             }).catch(err => Logger.error(user.id, 'member.roles.remove', err))
         }).catch(err => Logger.error(user.id, 'members.fetch', err))

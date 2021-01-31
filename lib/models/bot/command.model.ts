@@ -7,34 +7,44 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:34:02 
- * Last modified  : 2021-01-30 17:34:02 
+ * Last modified  : 2021-01-30 21:13:09
  */
 
-import { Permissions, Message, GuildMember, BitFieldResolvable, PermissionString } from 'discord.js';
+import { Permissions, Message, GuildMember } from 'discord.js';
 import { Logger } from '../../database/logger';
 import * as databaseModels from '../database'
 
-export default class Command {
+interface CommandOptions {
+  /** Name of command, also how command will be run */
   name: string;
-  permissions: Permissions;
-  private callback: (message: Message, args: string[], dbUser: databaseModels.Users) => void;
-  exampleRun: string;
+
+  /** Description of command in help menu */
   desc: string;
 
+  /** Usage of command shown in help menu */
+  usage: string;
+
+  /** Permissions required to run command */
+  permissions: Permissions;
+
   /**
-   * Creates a new Command
-   * @param name Name of the command, also how the command will be called
-   * @param desc Breif description of what the command does
-   * @param exampleRun String of how to run the command
-   * @param permissions Permissions that the message author needs to have
-   * @param callback Provides parsed Options, Original message object, and the User from the Database
+   * Callback to run once args are parsed & user is returned from Database
+   * @param message original message object sent by user
+   * @param args parsed arguments from message, GuildMember & Channel mentions are removed from args
+   * @param dbUser user returned from Database
    */
-  constructor(name: string, desc: string, exampleRun: string, permissions: Permissions, callback: (message: Message, args: string[], dbUser: databaseModels.Users) => void) {
-    this.name = name.toLowerCase();
-    this.desc = desc;
-    this.exampleRun = exampleRun;
-    this.permissions = permissions;
-    this.callback = callback;
+  callback: (message: Message, args: string[], dbUser: databaseModels.Users) => void;
+}
+
+export class Command {
+  data: CommandOptions
+
+  /**
+   * Create new Command
+   * @param data Data to create command with
+   */
+  constructor(data: CommandOptions) {
+    this.data = data
   }
 
   /**
@@ -46,7 +56,7 @@ export default class Command {
       return false
 
     let missingPermissions: Permissions = new Permissions();
-    this.permissions.toArray().forEach(permission => {
+    this.data.permissions.toArray().forEach(permission => {
       if (!member?.hasPermission(permission))
         missingPermissions.add(permission)
     })
@@ -62,7 +72,7 @@ export default class Command {
     let args = message.content.trim().toLowerCase().slice(1).split(' ')
     let command = args.shift()
 
-    if (command !== this.name) {
+    if (command !== this.data.name) {
       return false
     }
 
@@ -77,8 +87,8 @@ export default class Command {
         args.splice(i, 1)
     }
 
-    this.callback(message, args, dbUser)
-    Logger.log(message.author.id, `!${this.name}`, 'Ran Command')
+    this.data.callback(message, args, dbUser)
+    Logger.log(message.author.id, `!${this.data.name}`, 'Ran Command')
     return true
   }
 }

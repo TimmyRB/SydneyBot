@@ -7,42 +7,35 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:34:23 
- * Last modified  : 2021-01-30 17:34:41
+ * Last modified  : 2021-01-30 21:19:32
  */
 
 import { MessageEmbed, TextChannel, Message, DMChannel, NewsChannel } from 'discord.js'
 import { Database } from '../../database/database';
 
-export default class Prompt {
-    id: string;
-    page: number;
-    totalPages: number;
+interface PromptOptions {
+    /** id of the Discord Message that is a Prompt */
+    id?: string;
+
+    /** Current page index */
+    page?: number;
+
+    /** Total Pages available */
+    totalPages?: number;
+
+    /** Array of Embeds to serve as pages */
     content: MessageEmbed[];
+}
+
+export class Prompt {
+    data: PromptOptions
 
     /**
-     * Creates new Prompt
-     * @param content array of Embeds that act as pages
-     * @param id id of the sent Discord Message
-     * @param page current page index
-     * @param totalPages total pages
+     * Create new Prompt
+     * @param data Data to create prompt with
      */
-    constructor(content: MessageEmbed[], id?: string, page?: number, totalPages?: number) {
-        if (id)
-            this.id = id
-        else
-            this.id = '0'
-
-        if (page)
-            this.page = page
-        else
-            this.page = 0
-
-        if (totalPages)
-            this.totalPages = totalPages
-        else
-            this.totalPages = 1
-
-        this.content = content
+    constructor(data: PromptOptions) {
+        this.data = data
     }
 
     /**
@@ -51,10 +44,10 @@ export default class Prompt {
      * @param uuid uuid of the user requesting the prompt
      */
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
-        channel.send(this.content[0]).then(message => {
-            Database.createPrompt(message.id, this.content, uuid)
+        channel.send(this.data.content[0]).then(message => {
+            Database.createPrompt(message.id, this.data.content, uuid)
 
-            if (this.content.length > 1) {
+            if (this.data.content.length > 1) {
                 message.react('◀').then(() => message.react('▶'))
             }
         })
@@ -65,18 +58,18 @@ export default class Prompt {
      * @param message the prompt as a Discord Message
      */
     nextPage(message: Message) {
-        if (this.id === '0')
+        if (this.data.id === '0')
             return
 
-        if (message.id !== this.id)
+        if (message.id !== this.data.id)
             return
 
-        if (this.page + 1 > this.totalPages)
+        if (this.data.page! + 1 > this.data.totalPages!)
             return
 
-        this.page++;
-        message.edit(this.content[this.page])
-        Database.nextPage(this.id, message.author.id)
+        this.data.page!++;
+        message.edit(this.data.content[this.data.page!])
+        Database.nextPage(this.data.id, message.author.id)
     }
 
     /**
@@ -84,17 +77,17 @@ export default class Prompt {
      * @param message the prompt as a Discord Message
      */
     previousPage(message: Message) {
-        if (this.id === '0')
+        if (this.data.id === '0')
             return
 
-        if (message.id !== this.id)
+        if (message.id !== this.data.id)
             return
 
-        if (this.page - 1 < 0)
+        if (this.data.page! - 1 < 0)
             return
 
-        this.page--;
-        message.edit(this.content[this.page])
-        Database.previousPage(this.id, message.author.id)
+        this.data.page!--;
+        message.edit(this.data.content[this.data.page!])
+        Database.previousPage(this.data.id, message.author.id)
     }
 }
