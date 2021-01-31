@@ -7,7 +7,7 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:34:02 
- * Last modified  : 2021-01-30 21:13:09
+ * Last modified  : 2021-01-30 21:35:49
  */
 
 import { Permissions, Message, GuildMember } from 'discord.js';
@@ -44,6 +44,7 @@ export class Command {
    * @param data Data to create command with
    */
   constructor(data: CommandOptions) {
+    data.name = data.name.toLowerCase()
     this.data = data
   }
 
