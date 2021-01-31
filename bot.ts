@@ -7,18 +7,16 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:43:13 
- * Last modified  : 2021-01-30 17:43:33
+ * Last modified  : 2021-01-30 21:40:55
  */
 
 import * as dotenv from 'dotenv';
 dotenv.config();
 
 import * as Discord from 'discord.js'
-import Command from './lib/models/bot/command.model';
+import { Command, Prompt, Assigner } from './lib/models/bot';
 import * as Commands from './src/commands';
 import { Database } from './lib/database/database';
-import Prompt from './lib/models/bot/prompt.model';
-import Assigner from './lib/models/bot/assigner.model';
 import { Logger } from './lib/database/logger';
 
 const bot = new Discord.Client({ partials: ['MESSAGE', 'REACTION'] });
@@ -34,7 +32,7 @@ var helpMenu: Prompt
 
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user?.tag}`)
-    commands.sort((a, b) => { return a.permissions.toArray().length - b.permissions.toArray().length })
+    commands.sort((a, b) => { return a.data.permissions.toArray().length - b.data.permissions.toArray().length })
 
     bot.user?.setActivity('for !help', { type: 'WATCHING' })
 
@@ -44,17 +42,17 @@ bot.on('ready', () => {
             title: `Help Menu - Page ${pages.length + 1} / ${Math.ceil(commands.length / 2)}`,
             fields: [
                 {
-                    name: `${commands[i].name}`,
-                    value: `${commands[i].desc}\n\n**Permissions:**\n${commands[i].permissions.toArray().length > 0 ? commands[i].permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i].exampleRun}\`\`\``
+                    name: `${commands[i].data.name}`,
+                    value: `${commands[i].data.desc}\n\n**Permissions:**\n${commands[i].data.permissions.toArray().length > 0 ? commands[i].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i].data.usage}\`\`\``
                 },
                 {
-                    name: `${commands[i + 1].name}`,
-                    value: `${commands[i + 1].desc}\n\n**Permissions:**\n${commands[i + 1].permissions.toArray().length > 0 ? commands[i + 1].permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i + 1].exampleRun}\`\`\``
+                    name: `${commands[i + 1].data.name}`,
+                    value: `${commands[i + 1].data.desc}\n\n**Permissions:**\n${commands[i + 1].data.permissions.toArray().length > 0 ? commands[i + 1].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i + 1].data.usage}\`\`\``
                 }]
         }))
     }
 
-    helpMenu = new Prompt(pages)
+    helpMenu = new Prompt({ content: pages })
     commands.reverse()
 
     setTimeout(() => {
@@ -149,14 +147,14 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                 switch (reaction.emoji.name) {
                     case '◀':
                         let p1 = await Database.findPrompt(reaction.message.id)
-                        let prompt1 = new Prompt(p1.content, p1.id, p1.page, p1.totalPages)
+                        let prompt1 = new Prompt({ content: p1.content, id: p1.id, page: p1.page, totalPages: p1.totalPages })
                         reaction.users.remove(user as Discord.User)
                         prompt1.previousPage(reaction.message)
                         break;
 
                     case '▶':
                         let p2 = await Database.findPrompt(reaction.message.id)
-                        let prompt2 = new Prompt(p2.content, p2.id, p2.page, p2.totalPages)
+                        let prompt2 = new Prompt({ content: p2.content, id: p2.id, page: p2.page, totalPages: p2.totalPages })
                         reaction.users.remove(user as Discord.User)
                         prompt2.nextPage(reaction.message)
                         break;
@@ -178,7 +176,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                 }
             } else {
                 Database.findAssigner(reaction.message.id).then(a => {
-                    let assigner = new Assigner(a.title, a.description, a.reactionRoles, a.id)
+                    let assigner = new Assigner({ title: a.title, description: a.description, reactionRoles: a.reactionRoles, id: a.id })
                     assigner.assignRole(bot, reaction.message, reaction, user as Discord.User)
                 }).catch(err => Logger.error(user.id, 'Database.findAssigner', err))
             }
