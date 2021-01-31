@@ -7,7 +7,7 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:43:13 
- * Last modified  : 2021-01-30 21:40:55
+ * Last modified  : 2021-01-30 22:26:45
  */
 
 import * as dotenv from 'dotenv';
@@ -38,17 +38,23 @@ bot.on('ready', () => {
 
     let pages: Discord.MessageEmbed[] = []
     for (let i = 0; i < commands.length; i += 2) {
+        let fields: Discord.EmbedFieldData[] = []
+
+        fields.push({
+            name: `${commands[i].data.name}`,
+            value: `${commands[i].data.desc}\n\n**Permissions:**\n${commands[i].data.permissions.toArray().length > 0 ? commands[i].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i].data.usage}\`\`\``
+        })
+
+        if (commands[i + 1] !== undefined) {
+            fields.push({
+                name: `${commands[i + 1].data.name}`,
+                value: `${commands[i + 1].data.desc}\n\n**Permissions:**\n${commands[i + 1].data.permissions.toArray().length > 0 ? commands[i + 1].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i + 1].data.usage}\`\`\``
+            })
+        }
+
         pages.push(new Discord.MessageEmbed({
             title: `Help Menu - Page ${pages.length + 1} / ${Math.ceil(commands.length / 2)}`,
-            fields: [
-                {
-                    name: `${commands[i].data.name}`,
-                    value: `${commands[i].data.desc}\n\n**Permissions:**\n${commands[i].data.permissions.toArray().length > 0 ? commands[i].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i].data.usage}\`\`\``
-                },
-                {
-                    name: `${commands[i + 1].data.name}`,
-                    value: `${commands[i + 1].data.desc}\n\n**Permissions:**\n${commands[i + 1].data.permissions.toArray().length > 0 ? commands[i + 1].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i + 1].data.usage}\`\`\``
-                }]
+            fields: fields
         }))
     }
 
