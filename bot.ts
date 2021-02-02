@@ -116,6 +116,7 @@ bot.on('message', message => {
     }
 })
 
+// Handle Reaction being Added
 bot.on('messageReactionAdd', async (reaction, user) => {
     if (reaction.partial) {
         try {
@@ -195,12 +196,14 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 // Handle Discord User Joining Server
 bot.on('guildMemberAdd', member => {
     Logger.log(member.id, `${member.id} Joined Server`, 'Ran GuildMemberAdd')
+    let channel = bot.guilds.cache.find(g => g.id === '619560877405896714')?.channels.cache.find(c => c.id === '619560877405896716') as Discord.TextChannel
+    channel.send(`Welcome ${member.user} to the\n**Sheridan SDNE Discord!**\nMake sure to assign your role in <#704216085444165682>`)
     member.guild.fetchInvites().then(guildInvites => {
         const existingInvites: Discord.Collection<string, Discord.Invite> = invites[member.guild.id]
         invites[member.guild.id] = guildInvites
         const invite = guildInvites.find(i => existingInvites.get(i.code)?.uses! < i.uses!)
-        Database.setReferrer(member.id, invite!.inviter!.id!)
-        Database.addXP(invite!.inviter!.id!, 15)
+        Database.setReferrer(member.id, invite!.inviter!.id)
+        Database.addXP(invite!.inviter!.id, 15)
         console.log(`Joined ${member.id}, Referrer: ${invite?.inviter?.id!}`)
     })
 })
