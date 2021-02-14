@@ -79,7 +79,7 @@ export const Info = new Command({
                     text: `User Id: ${member.user.id}`
                 },
                 thumbnail: {
-                    url: message.author.displayAvatarURL({dynamic: true})
+                    url: member.user.displayAvatarURL({dynamic: true})
                 },
                 fields: [
                     {
