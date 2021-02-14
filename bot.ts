@@ -92,6 +92,9 @@ bot.on('message', message => {
             let found = false
 
             if (message.content.startsWith('!help')) {
+                for (let p of helpMenu.data.content) {
+                    p.setFooter(`Opened by ${message.author}`)
+                }
                 helpMenu.show(message.channel, message.author.id)
                 found = true
             }
@@ -178,6 +181,9 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
                     case '❓':
                         reaction.message.reactions.removeAll()
+                        for (let p of helpMenu.data.content) {
+                            p.setFooter(`Opened by ${user}`)
+                        }
                         helpMenu.show(reaction.message.channel, user.id)
                         break;
                 }
