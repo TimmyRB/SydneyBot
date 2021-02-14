@@ -79,7 +79,7 @@ export const Info = new Command({
                     text: `User Id: ${member.user.id}`
                 },
                 thumbnail: {
-                    url: member.user.avatarURL() ? member.user.avatarURL({ dynamic: true })! : 'https://cdn.discordapp.com/icons/619560877405896714/a_0f43add0d4ebc78f330e1d0a145d971f.webp'
+                    url: message.author.displayAvatarURL({dynamic: true})
                 },
                 fields: [
                     {
