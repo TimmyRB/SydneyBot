@@ -93,7 +93,7 @@ bot.on('message', message => {
 
             if (message.content.startsWith('!help')) {
                 for (let p of helpMenu.data.content) {
-                    p.setFooter(`Opened by ${message.author}`)
+                    p.setAuthor(message.member?.nickname, message.author.displayAvatarURL({ dynamic: true }))
                 }
                 helpMenu.show(message.channel, message.author.id)
                 found = true
@@ -181,10 +181,13 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
                     case '❓':
                         reaction.message.reactions.removeAll()
-                        for (let p of helpMenu.data.content) {
-                            p.setFooter(`Opened by ${user}`)
-                        }
-                        helpMenu.show(reaction.message.channel, user.id)
+                        bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
+                            let member = members.find(m => m.user === user)
+                            for (let p of helpMenu.data.content) {
+                                p.setAuthor(member?.nickname, user.displayAvatarURL({ dynamic: true }))
+                            }
+                            helpMenu.show(reaction.message.channel, user.id)
+                        })
                         break;
                 }
             } else {
