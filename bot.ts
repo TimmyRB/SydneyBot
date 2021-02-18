@@ -147,8 +147,11 @@ bot.on('messageReactionAdd', async (reaction, user) => {
         const users = await reaction.users.fetch()
         Logger.log(user.id, `${reaction.emoji.name} on ${reaction.message.id}`, 'Ran MessageReactionAdd')
 
-        // Prompt & Assigner Command
-        if (users.has(bot.user!.id)) {
+        if (reaction.emoji.name === '📌') {
+            user.send(`${reaction.message.author} sent:\n${reaction.message.content}`, reaction.message.attachments.array().length > 0 ? reaction.message.attachments.array() : (reaction.message.embeds))
+            if (reaction.count === 16)
+                reaction.message.pin().catch(err => Logger.error(reaction.message.author.id, 'message.pin', err))
+        } else if (users.has(bot.user!.id)) {
             if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌' || reaction.emoji.name === '❓') {
                 switch (reaction.emoji.name) {
                     case '◀':
@@ -167,12 +170,6 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
                     case '👍':
                         Database.addXP(reaction.message.author.id, 5)
-                        break;
-
-                    case '📌':
-                        user.send(`${reaction.message.author} sent:\n${reaction.message.content}`, reaction.message.attachments.array().length > 0 ? reaction.message.attachments.array() : (reaction.message.embeds))
-                        if (reaction.count === 16)
-                            reaction.message.pin().catch(err => Logger.error(reaction.message.author.id, 'message.pin', err))
                         break;
 
                     case '❓':
