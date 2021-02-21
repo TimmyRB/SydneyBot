@@ -92,6 +92,9 @@ bot.on('message', message => {
             let found = false
 
             if (message.content.startsWith('!help')) {
+                for (let p of helpMenu.data.content) {
+                    p.setAuthor(message.member?.displayName, message.author.displayAvatarURL({ dynamic: true }))
+                }
                 helpMenu.show(message.channel, message.author.id)
                 found = true
             }
@@ -148,8 +151,11 @@ bot.on('messageReactionAdd', async (reaction, user) => {
         const users = await reaction.users.fetch()
         Logger.log(user.id, `${reaction.emoji.name} on ${reaction.message.id}`, 'Ran MessageReactionAdd')
 
-        // Prompt & Assigner Command
-        if (users.has(bot.user!.id)) {
+        if (reaction.emoji.name === '📌') {
+            user.send(`${reaction.message.author} sent:\n${reaction.message.content}`, reaction.message.attachments.array().length > 0 ? reaction.message.attachments.array() : (reaction.message.embeds))
+            if (reaction.count === 16)
+                reaction.message.pin().catch(err => Logger.error(reaction.message.author.id, 'message.pin', err))
+        } else if (users.has(bot.user!.id)) {
             if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌' || reaction.emoji.name === '❓') {
                 switch (reaction.emoji.name) {
                     case '◀':
@@ -170,15 +176,15 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                         Database.addXP(reaction.message.author.id, 5)
                         break;
 
-                    case '📌':
-                        user.send(`${reaction.message.author} sent:\n${reaction.message.content}`, reaction.message.attachments.array().length > 0 ? reaction.message.attachments.array() : (reaction.message.embeds))
-                        if (reaction.count === 16)
-                            reaction.message.pin().catch(err => Logger.error(reaction.message.author.id, 'message.pin', err))
-                        break;
-
                     case '❓':
                         reaction.message.reactions.removeAll()
-                        helpMenu.show(reaction.message.channel, user.id)
+                        bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
+                            let member = members.find(m => m.user === user)
+                            for (let p of helpMenu.data.content) {
+                                p.setAuthor(member?.displayName, user.displayAvatarURL({ dynamic: true }))
+                            }
+                            helpMenu.show(reaction.message.channel, user.id)
+                        })
                         break;
                 }
             } else {
