@@ -61,6 +61,30 @@ bot.on('ready', () => {
     helpMenu = new Prompt({ content: pages })
     commands.reverse()
 
+    // @ts-expect-error
+    bot.api.applications(bot.user?.id).commands.post({
+        data: {
+            "name": "info",
+            "description": "Displays information on User(s) or TextChannel(s)",
+            "options": [
+                {
+                    "type": 7,
+                    "name": "TextChannels",
+                    "description": "Text Channels to get Info For",
+                    "default": false,
+                    "required": false
+                },
+                {
+                    "type": 6,
+                    "name": "Users",
+                    "description": "Users to get Info For",
+                    "default": false,
+                    "required": false
+                }
+            ]
+        }
+    }).catch((err: any) => console.error(err))
+
     setTimeout(() => {
         bot.guilds.cache.forEach(guild => {
             guild.fetchInvites().then(guildInvites => {
