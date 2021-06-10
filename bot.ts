@@ -152,10 +152,16 @@ bot.on('messageReactionAdd', async (reaction, user) => {
         Logger.log(user.id, `${reaction.emoji.name} on ${reaction.message.id}`, 'Ran MessageReactionAdd')
 
         if (reaction.emoji.name === '📌') {
-            reaction.remove();
+            reaction.users.remove(user as Discord.User)
             user.send(`${reaction.message.author} sent:\n${reaction.message.content}`, reaction.message.attachments.array().length > 0 ? reaction.message.attachments.array() : (reaction.message.embeds))
             if (reaction.count === 16)
                 reaction.message.pin().catch(err => Logger.error(reaction.message.author.id, 'message.pin', err))
+        } else if (reaction.emoji.name === '🗑️' && reaction.message.author === bot.user && reaction.message.channel.type === "dm") {
+            if (reaction.message.deletable)
+                reaction.message.delete().catch(err => Logger.error(user.id, 'Reaction Delete', err));
+            else {
+                reaction.message.reply("Couldn't delete message.").then((m) => setTimeout(() => { m.delete() }, 5000))
+            }
         } else if (users.has(bot.user!.id)) {
             if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌' || reaction.emoji.name === '❓') {
                 switch (reaction.emoji.name) {
