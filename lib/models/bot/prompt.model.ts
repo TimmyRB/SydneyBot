@@ -44,7 +44,7 @@ export class Prompt {
      * @param uuid uuid of the user requesting the prompt
      */
     show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
-        channel.send(this.data.content[0]).then(message => {
+        channel.send({ embeds: [this.data.content[0]] }).then(message => {
             Database.createPrompt(message.id, this.data.content, uuid)
 
             if (this.data.content.length > 1) {
@@ -68,7 +68,7 @@ export class Prompt {
             return
 
         this.data.page!++;
-        message.edit(this.data.content[this.data.page!])
+        message.edit({ embeds: [this.data.content[this.data.page!]] })
         Database.nextPage(this.data.id, message.author.id)
     }
 
@@ -87,7 +87,7 @@ export class Prompt {
             return
 
         this.data.page!--;
-        message.edit(this.data.content[this.data.page!])
+        message.edit({ embeds: [this.data.content[this.data.page!]] })
         Database.previousPage(this.data.id, message.author.id)
     }
 }

@@ -31,7 +31,7 @@ interface AssignerOptions {
         /** Name of role shown in Embed */
         name: string,
         /** Emoji that will assign role when reacted to */
-        emoji: EmojiResolvable,
+        emoji: string,
         /** Id of the Role to assign to the reactor */
         roleId: string
     }[];
@@ -71,7 +71,7 @@ export class Assigner {
             fields: fields
         })
 
-        channel.send(embed).then(msg => {
+        channel.send({ embeds: [embed] }).then(msg => {
             Database.createAssigner(msg.id, uuid, this.data?.title!, this.data?.description!, this.data?.reactionRoles!)
             this.data?.reactionRoles?.forEach(async rRole => {
                 await msg.react(rRole.emoji)

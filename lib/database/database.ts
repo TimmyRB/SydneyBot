@@ -189,7 +189,7 @@ export class Database {
    * @param description description of the Embed
    * @param reactionRoles roles to be assigned when User reacts
    */
-  static createAssigner(id: string, uuid: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[]) {
+  static createAssigner(id: string, uuid: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: string, roleId: string }[]) {
     let unparsed: string[] = []
 
     reactionRoles.forEach(rRole => {

@@ -21,7 +21,7 @@
    "homepage": "https://github.com/TimmyRB/SydneyBot#readme",
    "dependencies": {
       "axios": "^0.21.1",
-      "discord.js": "^12.5.3",
+      "discord.js": "github:discordjs/discord.js",
       "dotenv": "^10.0.0",
       "node-html-parser": "^3.3.5",
       "pg": "^8.6.0",
@@ -32,6 +32,7 @@
       "@types/node": "^15.12.2",
       "@types/sequelize": "^4.28.9",
       "@types/validator": "^13.1.4",
+      "discord-api-types": "^0.18.1",
       "nodemon": "^2.0.7",
       "ts-node": "10.0.0"
    }

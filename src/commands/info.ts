@@ -24,7 +24,8 @@ export const Info = new Command({
         let pages: MessageEmbed[] = []
         let profsProcessed = 0
 
-        for (let channel of message.mentions.channels.array()) {
+        for (let c of message.mentions.channels.array()) {
+            let channel = c as TextChannel
             let invites = await channel.fetchInvites()
             pages.push(new MessageEmbed({
                 title: `#${channel.name} info`,
@@ -79,7 +80,7 @@ export const Info = new Command({
                     text: `User Id: ${member.user.id}`
                 },
                 thumbnail: {
-                    url: member.user.displayAvatarURL({dynamic: true})
+                    url: member.user.displayAvatarURL({ dynamic: true })
                 },
                 fields: [
                     {

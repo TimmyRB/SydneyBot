@@ -18,7 +18,7 @@ export class Assigners extends Model {
     id!: string;
     title!: string;
     description!: string;
-    reactionRoles!: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[];
+    reactionRoles!: { groupId: number, name: string, emoji: string, roleId: string }[];
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;

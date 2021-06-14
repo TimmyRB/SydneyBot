@@ -58,7 +58,7 @@ export class Command {
 
     let missingPermissions: Permissions = new Permissions();
     this.data.permissions.toArray().forEach(permission => {
-      if (!member?.hasPermission(permission))
+      if (!member?.permissions.has(permission))
         missingPermissions.add(permission)
     })
     return missingPermissions

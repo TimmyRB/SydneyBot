@@ -19,7 +19,9 @@ import * as Commands from './src/commands';
 import { Database } from './lib/database/database';
 import { Logger } from './lib/database/logger';
 
-const bot = new Discord.Client({ partials: ['MESSAGE', 'REACTION'] });
+const intents = new Discord.Intents();
+intents.add('DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILDS', 'GUILD_INVITES', 'GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS')
+const bot = new Discord.Client({ intents: intents });
 
 // Commands need to be added here before they'll work
 const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, Commands.AssignEmbed, Commands.Mute, Commands.Unmute]
@@ -72,19 +74,15 @@ bot.on('ready', () => {
 
 // Handle Messages
 bot.on('message', message => {
-    console.log('1');
     if (message.channel.type === 'dm' || message.channel.type === 'news')
         return
 
-    console.log('2');
 
     Database.findUser(message.author.id).then(dbUser => {
         if (dbUser.muted) {
             message.delete()
             return
         }
-
-        console.log('3');
 
         Database.incrementInfo(message.author.id, 'messages')
 
@@ -98,7 +96,7 @@ bot.on('message', message => {
 
             if (message.content.startsWith('!help')) {
                 for (let p of helpMenu.data.content) {
-                    p.setAuthor(message.member?.displayName, message.author.displayAvatarURL({ dynamic: true }))
+                    p.setAuthor(message.member?.displayName!, message.author.displayAvatarURL({ dynamic: true }))
                 }
                 helpMenu.show(message.channel, message.author.id)
                 found = true
@@ -117,7 +115,7 @@ bot.on('message', message => {
                 Database.incrementInfo(message.author.id, 'commands')
             }
         }
-    }).catch(err => console.error(err))
+    }).catch(err => Logger.error(message.author.id, 'Database.findUser', err))
 
     if (message.attachments.size > 0 || message.content.indexOf('http://') !== -1 || message.content.indexOf('https://') !== -1) {
         message.react('👍').then(() => message.react('📌'))
@@ -125,7 +123,7 @@ bot.on('message', message => {
 })
 
 // Handle Reaction being Added
-bot.on('messageReactionAdd', async (reaction, user) => {
+bot.on<'messageReactionAdd'>('messageReactionAdd', async (reaction, user) => {
     if (reaction.partial) {
         try {
             await reaction.fetch()
@@ -147,7 +145,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
     if (reaction.me)
         return
 
-    Database.findUser(reaction.message.author.id).then(async dbUser => {
+    Database.findUser(reaction.message.author!.id).then(async dbUser => {
         if (dbUser.muted) {
             reaction.remove()
             return
@@ -158,7 +156,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
         if (reaction.emoji.name === '📌') {
             reaction.users.remove(user as Discord.User)
-            user.send(`${reaction.message.author} **sent:**\n${reaction.message.content}\n\n**viewable here:**\n${reaction.message.url}`, reaction.message.attachments.array().length > 0 ? reaction.message.attachments.array() : (reaction.message.embeds)).then((m) => m.react('🗑️'))
+            user.send(`${reaction.message.author} **sent:**\n${reaction.message.content}\n\n**viewable here:**\n${reaction.message.url}`).then((m) => m.react('🗑️'))
         } else if (reaction.emoji.name === '🗑️' && reaction.message.author === bot.user && reaction.message.channel.type === "dm") {
             if (reaction.message.deletable)
                 reaction.message.delete().catch(err => Logger.error(user.id, 'Reaction Delete', err));
@@ -172,18 +170,18 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                         let p1 = await Database.findPrompt(reaction.message.id)
                         let prompt1 = new Prompt({ content: p1.content, id: p1.id, page: p1.page, totalPages: p1.totalPages })
                         reaction.users.remove(user as Discord.User)
-                        prompt1.previousPage(reaction.message)
+                        prompt1.previousPage(reaction.message as Discord.Message)
                         break;
 
                     case '▶':
                         let p2 = await Database.findPrompt(reaction.message.id)
                         let prompt2 = new Prompt({ content: p2.content, id: p2.id, page: p2.page, totalPages: p2.totalPages })
                         reaction.users.remove(user as Discord.User)
-                        prompt2.nextPage(reaction.message)
+                        prompt2.nextPage(reaction.message as Discord.Message)
                         break;
 
                     case '👍':
-                        Database.addXP(reaction.message.author.id, 5)
+                        Database.addXP(reaction.message.author!.id, 5)
                         break;
 
                     case '❓':
@@ -191,7 +189,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
                         bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
                             let member = members.find(m => m.user === user)
                             for (let p of helpMenu.data.content) {
-                                p.setAuthor(member?.displayName, user.displayAvatarURL({ dynamic: true }))
+                                p.setAuthor(member?.displayName!, user.displayAvatarURL({ dynamic: true }))
                             }
                             helpMenu.show(reaction.message.channel, user.id)
                         })
@@ -200,13 +198,13 @@ bot.on('messageReactionAdd', async (reaction, user) => {
             } else {
                 Database.findAssigner(reaction.message.id).then(a => {
                     let assigner = new Assigner({ title: a.title, description: a.description, reactionRoles: a.reactionRoles, id: a.id })
-                    assigner.assignRole(bot, reaction.message, reaction, user as Discord.User)
+                    assigner.assignRole(bot, reaction.message as Discord.Message, reaction, user as Discord.User)
                 }).catch(err => Logger.error(user.id, 'Database.findAssigner', err))
             }
         } else {
-            Database.addXP(reaction.message.author.id, 1)
+            Database.addXP(reaction.message.author!.id, 1)
         }
-    }).catch(err => Logger.error(reaction.message.author.id, 'Database.findUser', err))
+    }).catch(err => Logger.error(reaction.message.author!.id, 'Database.findUser', err))
 })
 
 // Handle Discord User Joining Server
