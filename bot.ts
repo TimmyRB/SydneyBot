@@ -29,39 +29,10 @@ const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, C
 // Invites will be cached here
 const invites: any = {}
 
-// Help Menu
-var helpMenu: Prompt
-
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user?.tag}`)
-    commands.sort((a, b) => { return a.data.permissions.toArray().length - b.data.permissions.toArray().length })
 
     bot.user?.setActivity('for !help', { type: 'WATCHING' })
-
-    let pages: Discord.MessageEmbed[] = []
-    for (let i = 0; i < commands.length; i += 2) {
-        let fields: Discord.EmbedFieldData[] = []
-
-        fields.push({
-            name: `${commands[i].data.name}`,
-            value: `${commands[i].data.desc}\n\n**Permissions:**\n${commands[i].data.permissions.toArray().length > 0 ? commands[i].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i].data.usage}\`\`\``
-        })
-
-        if (commands[i + 1] !== undefined) {
-            fields.push({
-                name: `${commands[i + 1].data.name}`,
-                value: `${commands[i + 1].data.desc}\n\n**Permissions:**\n${commands[i + 1].data.permissions.toArray().length > 0 ? commands[i + 1].data.permissions.toArray().map(p => `• ${p.toString()}`).join('\n') : 'None'}\n\n**Usage:**\n\`\`\`${commands[i + 1].data.usage}\`\`\``
-            })
-        }
-
-        pages.push(new Discord.MessageEmbed({
-            title: `Help Menu - Page ${pages.length + 1} / ${Math.ceil(commands.length / 2)}`,
-            fields: fields
-        }))
-    }
-
-    helpMenu = new Prompt({ content: pages })
-    commands.reverse()
 
     setTimeout(() => {
         bot.guilds.cache.forEach(guild => {
@@ -93,14 +64,6 @@ bot.on('message', (message: Discord.Message) => {
 
         if (message.content.startsWith('!')) {
             let found = false
-
-            if (message.content.startsWith('!help')) {
-                for (let p of helpMenu.data.content) {
-                    p.setAuthor(message.member?.displayName!, message.author.displayAvatarURL({ dynamic: true }))
-                }
-                helpMenu.show(message.channel, message.author.id)
-                found = true
-            }
 
             for (let c of commands) {
                 if (found)
@@ -190,14 +153,6 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
                         break;
 
                     case '❓':
-                        reaction.message.reactions.removeAll()
-                        bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
-                            let member = members.find(m => m.user === user)
-                            for (let p of helpMenu.data.content) {
-                                p.setAuthor(member?.displayName!, user.displayAvatarURL({ dynamic: true }))
-                            }
-                            helpMenu.show(reaction.message.channel, user.id)
-                        })
                         break;
                 }
             } else {
