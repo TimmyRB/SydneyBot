@@ -54,7 +54,7 @@ export const config: ConfigType = {
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         port: parseInt(process.env.DB_PORT!, 10),
-        logging: console.log,
+        logging: false,
         ssl: true,
         dialectOptions: {
             ssl: {

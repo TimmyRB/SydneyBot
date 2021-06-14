@@ -73,7 +73,7 @@ bot.on('ready', () => {
 })
 
 // Handle Messages
-bot.on('message', message => {
+bot.on('message', (message: Discord.Message) => {
     if (message.channel.type === 'dm' || message.channel.type === 'news')
         return
 
@@ -123,12 +123,14 @@ bot.on('message', message => {
 })
 
 // Handle Reaction being Added
-bot.on<'messageReactionAdd'>('messageReactionAdd', async (reaction, user) => {
+bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Discord.User | Discord.PartialUser) => {
     if (reaction.partial) {
         try {
             await reaction.fetch()
+            console.log(1.5)
         } catch (err) {
             Logger.error(user.id, 'reaction.fetch', err)
+            console.log(0)
             return
         }
     }
@@ -136,18 +138,21 @@ bot.on<'messageReactionAdd'>('messageReactionAdd', async (reaction, user) => {
     if (user.partial) {
         try {
             await user.fetch()
+            console.log(2.5)
         } catch (err) {
             Logger.error(user.id, 'user.fetch', err)
+            console.log(0)
             return
         }
     }
 
-    if (reaction.me)
+    if (user.bot)
         return
 
     Database.findUser(reaction.message.author!.id).then(async dbUser => {
+
         if (dbUser.muted) {
-            reaction.remove()
+            reaction.users.remove(user as Discord.User)
             return
         }
 
@@ -208,7 +213,7 @@ bot.on<'messageReactionAdd'>('messageReactionAdd', async (reaction, user) => {
 })
 
 // Handle Discord User Joining Server
-bot.on('guildMemberAdd', member => {
+bot.on('guildMemberAdd', (member: Discord.GuildMember) => {
     Logger.log(member.id, `${member.id} Joined Server`, 'Ran GuildMemberAdd')
     let channel = bot.guilds.cache.find(g => g.id === '619560877405896714')?.channels.cache.find(c => c.id === '619560877405896716') as Discord.TextChannel
     channel.send(`Welcome ${member.user} to the\n**Sheridan SDNE Discord!**\nMake sure to assign your role in <#704216085444165682>`)
@@ -223,7 +228,7 @@ bot.on('guildMemberAdd', member => {
 })
 
 // Handle new Invite being created
-bot.on('inviteCreate', invite => {
+bot.on('inviteCreate', (invite: Discord.Invite) => {
     Logger.log(invite.inviter!.id, 'User Created Invite', 'Ran InviteCreate')
     invite.guild?.fetchInvites().then(guildInvites => {
         invites[invite.guild!.id] = guildInvites
@@ -231,7 +236,7 @@ bot.on('inviteCreate', invite => {
 })
 
 // Handle Message being Edited
-bot.on('messageUpdate', async message => {
+bot.on('messageUpdate', async (message: Discord.Message | Discord.PartialMessage) => {
     if (message.partial) {
         try {
             await message.fetch()

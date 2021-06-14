@@ -5,7 +5,7 @@ import { config } from '../../config/config'
 const cfg = config[env]
 
 const sequelize = new Sequelize(cfg.database!, cfg.username!, cfg.password, cfg);
-sequelize.sync({ force: (env === 'development') })
+sequelize.sync({ force: false })
 
 export { Sequelize } from 'sequelize-cockroachdb'
 export { sequelize }
