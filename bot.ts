@@ -72,14 +72,19 @@ bot.on('ready', () => {
 
 // Handle Messages
 bot.on('message', message => {
+    console.log('1');
     if (message.channel.type === 'dm' || message.channel.type === 'news')
         return
+
+    console.log('2');
 
     Database.findUser(message.author.id).then(dbUser => {
         if (dbUser.muted) {
             message.delete()
             return
         }
+
+        console.log('3');
 
         Database.incrementInfo(message.author.id, 'messages')
 
@@ -112,7 +117,7 @@ bot.on('message', message => {
                 Database.incrementInfo(message.author.id, 'commands')
             }
         }
-    }).catch(err => Logger.error(message.author.id, 'Database.findUser', err))
+    }).catch(err => console.error(err))
 
     if (message.attachments.size > 0 || message.content.indexOf('http://') !== -1 || message.content.indexOf('https://') !== -1) {
         message.react('👍').then(() => message.react('📌'))

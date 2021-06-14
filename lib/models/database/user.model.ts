@@ -7,11 +7,11 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:37:52 
- * Last modified  : 2021-01-30 17:37:52 
+ * Last modified  : 2021-06-14 14:41:19
  */
 
 import { DataTypes, Model } from 'sequelize-cockroachdb';
-import { sequelize } from './index'
+import { sequelize } from './'
 
 export class Users extends Model {
   public uuid!: string;

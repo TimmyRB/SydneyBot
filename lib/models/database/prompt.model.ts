@@ -7,12 +7,12 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:37:30 
- * Last modified  : 2021-01-30 17:37:30 
+ * Last modified  : 2021-06-14 14:41:11
  */
 
 import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { MessageEmbed } from 'discord.js'
-import { sequelize } from '../../config/config'
+import { sequelize } from './'
 
 export class Prompts extends Model {
   id!: string;

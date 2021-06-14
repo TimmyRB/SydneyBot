@@ -7,11 +7,11 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:37:13 
- * Last modified  : 2021-01-30 17:37:13 
+ * Last modified  : 2021-06-14 14:41:23
  */
 
 import { DataTypes, Model, Sequelize, UUIDV4 } from 'sequelize-cockroachdb';
-import { sequelize } from '../../config/config'
+import { sequelize } from './'
 
 export class Logs extends Model {
     id!: number;

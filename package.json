@@ -6,7 +6,8 @@
    "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
       "tsc": "tsc",
-      "start": "ts-node bot.ts"
+      "start": "ts-node bot.ts",
+      "debug": "nodemon --ext \"ts,json\" --exec \"ts-node bot.ts\""
    },
    "repository": {
       "type": "git",
@@ -24,16 +25,14 @@
       "dotenv": "^10.0.0",
       "node-html-parser": "^3.3.5",
       "pg": "^8.6.0",
-      "sequelize": "^6.6.2",
-      "sequelize-cockroachdb": "^1.1.0",
-      "typeorm": "0.2.34",
+      "sequelize-cockroachdb": "github:cockroachdb/sequelize-cockroachdb",
       "typescript": "^4.3.2"
    },
    "devDependencies": {
       "@types/node": "^15.12.2",
       "@types/sequelize": "^4.28.9",
       "@types/validator": "^13.1.4",
-      "ts-node": "10.0.0",
-      "typescript": "4.3.2"
+      "nodemon": "^2.0.7",
+      "ts-node": "10.0.0"
    }
 }

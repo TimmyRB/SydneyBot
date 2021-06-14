@@ -7,12 +7,12 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:33:03 
- * Last modified  : 2021-01-30 17:33:18
+ * Last modified  : 2021-06-14 14:41:27
  */
 
 import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { EmojiResolvable } from 'discord.js'
-import { sequelize } from '../../config/config'
+import { sequelize } from './'
 
 export class Assigners extends Model {
     id!: string;
