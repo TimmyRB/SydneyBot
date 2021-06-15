@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:44:01
  */
 
-import { Permissions, Message, GuildMember } from 'discord.js';
+import { Permissions, Message, GuildMember, ApplicationCommandOption, Interaction, APIMessage, WebhookEditMessageOptions, DiscordAPIError, CommandInteraction, Collection, CommandInteractionOption } from 'discord.js';
 import { Logger } from '../../database/logger';
 import * as databaseModels from '../database'
 
@@ -21,8 +21,8 @@ interface CommandOptions {
   /** Description of command in help menu */
   desc: string;
 
-  /** Usage of command shown in help menu */
-  usage: string;
+  /** Input Field Options */
+  options: ApplicationCommandOption[]
 
   /** Permissions required to run command */
   permissions: Permissions;
@@ -30,10 +30,10 @@ interface CommandOptions {
   /**
    * Callback to run once args are parsed & user is returned from Database
    * @param message original message object sent by user
-   * @param args parsed arguments from message, GuildMember & Channel mentions are removed from args
+   * @param args parsed arguments from command
    * @param dbUser user returned from Database
    */
-  callback: (message: Message, args: string[], dbUser: databaseModels.Users) => void;
+  callback: (message: CommandInteraction, args: Collection<string, CommandInteractionOption>, dbUser: databaseModels.Users) => void;
 }
 
 export class Command {
@@ -58,7 +58,7 @@ export class Command {
 
     let missingPermissions: Permissions = new Permissions();
     this.data.permissions.toArray().forEach(permission => {
-      if (!member?.hasPermission(permission))
+      if (!member?.permissions.has(permission))
         missingPermissions.add(permission)
     })
     return missingPermissions
@@ -69,26 +69,20 @@ export class Command {
    * @param message message where the command was called
    * @param dbUser the user from the Database
    */
-  run(message: Message, dbUser: databaseModels.Users): boolean {
-    let args = message.content.trim().toLowerCase().slice(1).split(' ')
-    let command = args.shift()
+  run(interaction: CommandInteraction, dbUser: databaseModels.Users, member: GuildMember): boolean {
 
-    if (command !== this.data.name) {
+    if (interaction.commandName !== this.data.name) {
       return false
     }
 
-    let missingPermissions = this.verifyPermissions(message.member)
+    let missingPermissions = this.verifyPermissions(member)
     if (!missingPermissions || missingPermissions.toArray().length > 0) {
       return false
     }
 
-    for (let i = 0; i < args.length; i++) {
-      if (args[i].startsWith('<') && args[i].endsWith('>'))
-        args.splice(i, 1)
-    }
+    let r = this.data.callback(interaction, interaction.options, dbUser)
+    Logger.log(interaction.user.id, `!${this.data.name}`, 'Ran Command')
 
-    this.data.callback(message, args, dbUser)
-    Logger.log(message.author.id, `!${this.data.name}`, 'Ran Command')
     return true
   }
 }

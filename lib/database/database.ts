@@ -135,12 +135,8 @@ export class Database {
    * Add a prompt to the Database to keep track of it
    * @param content array of Discord Embeds
    */
-  static createPrompt(id: string, content: MessageEmbed[], uuid: string) {
-    let unparsed: string[] = []
-
-    content.forEach(c => {
-      unparsed.push(JSON.stringify(c.toJSON()))
-    })
+  static createPrompt(id: string, content: MessageEmbed, uuid: string) {
+    let unparsed = (JSON.stringify(content.toJSON()))
 
     Prompts.create({ id: id, content: unparsed, page: 0, totalPages: content.length - 1 }).catch(err => Logger.error(uuid, 'createPrompt Prompts.create', err))
   }
@@ -189,7 +185,7 @@ export class Database {
    * @param description description of the Embed
    * @param reactionRoles roles to be assigned when User reacts
    */
-  static createAssigner(id: string, uuid: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: EmojiResolvable, roleId: string }[]) {
+  static createAssigner(id: string, uuid: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: string, roleId: string }[]) {
     let unparsed: string[] = []
 
     reactionRoles.forEach(rRole => {

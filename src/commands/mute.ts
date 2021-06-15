@@ -17,29 +17,32 @@ import { Command, Prompt } from '../../lib/models/bot';
 export const Mute = new Command({
     name: 'mute',
     desc: 'Mutes a User\'s Interactions',
-    usage: '!mute <users: User[]>',
-    permissions: new Permissions('MANAGE_MESSAGES'),
-    callback: (message, args, dbUser) => {
-        let members: GuildMember[] = []
-        message.mentions.members?.forEach((member, i, a) => {
-            Database.setMuted(member.id, true)
-            members.push(member)
-        })
-
-        if (members.length > 0) {
-            new Prompt({
-                content: [
-                    new MessageEmbed({
-                        title: `🔈 Muted ${members.length} User${members.length > 1 ? 's' : ''}`,
-                        color: 16725558,
-                        fields: [
-                            {
-                                name: 'Successfully Muted:',
-                                value: `\`\`\`${members.map(m => m.displayName).join(', ')}\`\`\``
-                            }
-                        ]
-                    })]
-            }).show(message.channel, message.author.id)
+    options: [
+        {
+            name: 'user',
+            type: 'USER',
+            description: 'The user to mute',
+            required: true
         }
+    ],
+    permissions: new Permissions('MANAGE_MESSAGES'),
+    callback: (interaction, args, dbUser) => {
+        let user = args.get('user')?.user!
+        Database.setMuted(user.id, true)
+
+        new Prompt({
+            content:
+                new MessageEmbed({
+                    title: `🔇 Muted`,
+                    color: 16725558,
+                    fields: [
+                        {
+                            name: 'Muted:',
+                            value: `${user}`
+                        }
+                    ]
+                })
+        }).show(interaction, interaction.user.id)
+
     }
 })

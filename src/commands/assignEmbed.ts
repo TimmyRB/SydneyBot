@@ -16,9 +16,9 @@ import { Assigner, Command } from '../../lib/models/bot';
 export const AssignEmbed = new Command({
     name: 'assignembed',
     desc: 'Creates a Role Assignment Embed',
-    usage: '!assignEmbed',
+    options: [],
     permissions: new Permissions('MANAGE_ROLES'),
-    callback: (message, args, dbUser) => {
+    callback: (interaction, args, dbUser) => {
         let roleAssigner = new Assigner({
             title: 'Role Assignment Info',
             description: 'Click a corresponding reaction to set your year & campus and gain access to the other channels!',
@@ -68,7 +68,7 @@ export const AssignEmbed = new Command({
             ]
         })
 
-        roleAssigner.show(message.channel, message.author.id)
-        message.delete()
+        roleAssigner.show(interaction.channel, interaction.user.id)
+        interaction.deleteReply()
     }
 })

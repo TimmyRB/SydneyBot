@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:19:32
  */
 
-import { MessageEmbed, TextChannel, Message, DMChannel, NewsChannel } from 'discord.js'
+import { MessageEmbed, TextChannel, Message, DMChannel, NewsChannel, CommandInteraction } from 'discord.js'
 import { Database } from '../../database/database';
 
 interface PromptOptions {
@@ -24,7 +24,7 @@ interface PromptOptions {
     totalPages?: number;
 
     /** Array of Embeds to serve as pages */
-    content: MessageEmbed[];
+    content: MessageEmbed;
 }
 
 export class Prompt {
@@ -43,51 +43,9 @@ export class Prompt {
      * @param channel the channel to send to prompt to
      * @param uuid uuid of the user requesting the prompt
      */
-    show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
-        channel.send(this.data.content[0]).then(message => {
+    show(interaction: CommandInteraction, uuid: string) {
+        interaction.followUp({ embeds: [this.data.content], ephemeral: false }).then(message => {
             Database.createPrompt(message.id, this.data.content, uuid)
-
-            if (this.data.content.length > 1) {
-                message.react('◀').then(() => message.react('▶'))
-            }
         })
-    }
-
-    /**
-     * Increase the page index
-     * @param message the prompt as a Discord Message
-     */
-    nextPage(message: Message) {
-        if (this.data.id === '0')
-            return
-
-        if (message.id !== this.data.id)
-            return
-
-        if (this.data.page! + 1 > this.data.totalPages!)
-            return
-
-        this.data.page!++;
-        message.edit(this.data.content[this.data.page!])
-        Database.nextPage(this.data.id, message.author.id)
-    }
-
-    /**
-     * Decrease the page index
-     * @param message the prompt as a Discord Message
-     */
-    previousPage(message: Message) {
-        if (this.data.id === '0')
-            return
-
-        if (message.id !== this.data.id)
-            return
-
-        if (this.data.page! - 1 < 0)
-            return
-
-        this.data.page!--;
-        message.edit(this.data.content[this.data.page!])
-        Database.previousPage(this.data.id, message.author.id)
     }
 }
