@@ -24,6 +24,11 @@ export const Info = new Command({
             type: 'USER',
             description: 'A user to get information on',
             required: true
+        },
+        {
+            name: 'hidden',
+            type: 'BOOLEAN',
+            description: 'Should this command be hidden from other users'
         }
     ],
     permissions: new Permissions(),

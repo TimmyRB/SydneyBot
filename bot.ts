@@ -79,7 +79,12 @@ bot.on('message', (message: Discord.Message) => {
 bot.on('interaction', async interaction => {
     if (!interaction.isCommand()) return;
 
-    await interaction.defer()
+    let ephemeral: boolean = false
+    if (interaction.options.get('hidden') != undefined) {
+        ephemeral = interaction.options.get('hidden')!.value as boolean
+    }
+
+    await interaction.defer({ ephemeral: ephemeral })
     Database.findUser(interaction.user.id).then(dbUser => {
         if (dbUser.muted) {
             interaction.deleteReply()

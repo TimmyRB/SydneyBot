@@ -35,6 +35,11 @@ export const RMP = new Command({
             type: 'STRING',
             description: 'The professor\'s name',
             required: true
+        },
+        {
+            name: 'hidden',
+            type: 'BOOLEAN',
+            description: 'Should this command be hidden from other users'
         }
     ],
     permissions: new Permissions(),

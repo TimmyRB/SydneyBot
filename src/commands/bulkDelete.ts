@@ -22,6 +22,11 @@ export const BulkDelete = new Command({
             type: 'INTEGER',
             description: 'Amount of messages to delete (max 100)',
             required: true
+        },
+        {
+            name: 'hidden',
+            type: 'BOOLEAN',
+            description: 'Should this command be hidden from other users'
         }
     ],
     permissions: new Permissions('MANAGE_MESSAGES'),
