@@ -187,7 +187,7 @@ function findProf(findId: number): Promise<Prof> {
                 if (p.retake.indexOf('%') === -1) {
                     // Set the level and retake values
                     p.level = Number(p.retake);
-                    p.retake = '0%';
+                    p.retake = '-1%';
                 }
 
                 // Try and parse a highlighted rating
