@@ -142,7 +142,7 @@ function findProf(findId: number): Promise<Prof> {
                 // Check to see if there was an error with the request
                 if (result.status === 301 || result.status === 404) {
                     // Reply with an error message and then return to stop further processing
-                    rej(`${result.status} 144`)
+                    rej(result.status)
                 }
 
                 // Parse the response and then initialize the professor instance
@@ -155,6 +155,9 @@ function findProf(findId: number): Promise<Prof> {
                 const score_class = html.querySelector('.RatingValue__Numerator-qw8sqy-2');
                 const retake_level_class = html.querySelectorAll('.FeedbackItem__StyledFeedbackItem-uof32n-0');
                 const helpful_rating_class = html.querySelector('.Comments__StyledComments-dzzyvm-0');
+
+                let school = role_class!.lastChild.text
+                if (school.toLowerCase().indexOf('sheridan college') === -1) rej('Wrong School')
 
                 // Initialize the stardard field values for the professor
                 p.id = findId;
