@@ -10,7 +10,7 @@ It is recommended to not run commands you're not developing as they may be serve
 
 ### NodeJS & NPM
 
-I recommend NodeJS [v12.18.3](https://nodejs.org/dist/v12.18.3/) but any version after that from the [NodeJS Website](https://nodejs.org/) will work as well. Make sure to restart and command prompts you have open so that you can use node & npm from the command line.
+I recommend NodeJS [v14.15.4](https://nodejs.org/dist/v14.15.4/) but any version after that from the [NodeJS Website](https://nodejs.org/) will work as well. Make sure to restart and command prompts you have open so that you can use node & npm from the command line.
 
 You can check which NodeJS & npm version you have installed by running
 ```cmd
