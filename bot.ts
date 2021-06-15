@@ -111,10 +111,8 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
     if (reaction.partial) {
         try {
             await reaction.fetch()
-            console.log(1.5)
         } catch (err) {
             Logger.error(user.id, 'reaction.fetch', err)
-            console.log(0)
             return
         }
     }
@@ -122,10 +120,8 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
     if (user.partial) {
         try {
             await user.fetch()
-            console.log(2.5)
         } catch (err) {
             Logger.error(user.id, 'user.fetch', err)
-            console.log(0)
             return
         }
     }
@@ -191,7 +187,7 @@ bot.on('guildMemberAdd', (member: Discord.GuildMember) => {
         const invite = guildInvites.find(i => existingInvites.get(i.code)?.uses! < i.uses!)
         Database.setReferrer(member.id, invite!.inviter!.id)
         Database.addXP(invite!.inviter!.id, 15)
-        console.log(`Joined ${member.id}, Referrer: ${invite?.inviter?.id!}`)
+        // console.log(`Joined ${member.id}, Referrer: ${invite?.inviter?.id!}`)
     })
 })
 
