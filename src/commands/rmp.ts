@@ -103,7 +103,7 @@ export const RMP = new Command({
                                 fields: [
                                     {
                                         name: "🔁 Would Retake?",
-                                        value: `\`\`\`${p.retake} say YES\`\`\``,
+                                        value: `\`\`\`${p.retake !== '-1%' ? p.retake + ' say YES' : 'No Rating'}\`\`\``,
                                         inline: true
                                     },
                                     {
@@ -171,7 +171,7 @@ function findProf(findId: number): Promise<Prof> {
                     p.retake = `${retake_level_class[0].firstChild.text}`;
                 } catch {
                     // Set the retake value to a defauly value
-                    p.retake = '0%';
+                    p.retake = '-1%';
                 }
 
                 // Try and parse a level
