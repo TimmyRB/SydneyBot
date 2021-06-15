@@ -29,10 +29,28 @@ const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, C
 // Invites will be cached here
 const invites: any = {}
 
-bot.on('ready', () => {
+bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user?.tag}`)
 
     bot.user?.setActivity('for !help', { type: 'WATCHING' })
+
+    bot.application?.commands.fetch().then(commands => commands.forEach(c => {
+        c.delete().catch(err => console.error(err))
+    }))
+
+    var appCommands: Discord.ApplicationCommandData[] = []
+
+    for (let c of commands) {
+        let data: Discord.ApplicationCommandData = {
+            name: c.data.name,
+            description: c.data.desc,
+            options: c.data.options,
+        }
+
+        appCommands.push(data)
+    }
+
+    await bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.commands.set(appCommands)
 
     setTimeout(() => {
         bot.guilds.cache.forEach(guild => {
@@ -48,41 +66,44 @@ bot.on('message', (message: Discord.Message) => {
     if (message.channel.type === 'dm' || message.channel.type === 'news')
         return
 
+    if (message.author.bot)
+        return
 
-    Database.findUser(message.author.id).then(dbUser => {
-        if (dbUser.muted) {
-            message.delete()
-            return
-        }
-
-        Database.incrementInfo(message.author.id, 'messages')
-
-        if (message.author === bot.user)
-            return
-
-        Database.generateXP(message.author.id)
-
-        if (message.content.startsWith('!')) {
-            let found = false
-
-            for (let c of commands) {
-                if (found)
-                    break
-
-                found = c.run(message, dbUser)
-            }
-
-            if (!found) {
-                message.react('❓')
-            } else {
-                Database.incrementInfo(message.author.id, 'commands')
-            }
-        }
-    }).catch(err => Logger.error(message.author.id, 'Database.findUser', err))
+    Database.generateXP(message.author.id)
 
     if (message.attachments.size > 0 || message.content.indexOf('http://') !== -1 || message.content.indexOf('https://') !== -1) {
         message.react('👍').then(() => message.react('📌'))
     }
+})
+
+bot.on('interaction', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    await interaction.defer()
+    Database.findUser(interaction.user.id).then(dbUser => {
+        if (dbUser.muted) {
+            interaction.deleteReply()
+            return
+        }
+
+        if (interaction.user.bot)
+            return
+
+        let found = false
+
+        for (let c of commands) {
+            if (found)
+                break
+
+            found = c.run(interaction, dbUser, bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.members.cache.find(m => m.user === interaction.user)!)
+        }
+
+        if (!found) {
+            interaction.deleteReply()
+        } else {
+            Database.incrementInfo(interaction.user.id, 'commands')
+        }
+    }).catch(err => Logger.error(interaction.user.id, 'Database.findUser', err))
 })
 
 // Handle Reaction being Added
@@ -135,17 +156,9 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
             if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌' || reaction.emoji.name === '❓') {
                 switch (reaction.emoji.name) {
                     case '◀':
-                        let p1 = await Database.findPrompt(reaction.message.id)
-                        let prompt1 = new Prompt({ content: p1.content, id: p1.id, page: p1.page, totalPages: p1.totalPages })
-                        reaction.users.remove(user as Discord.User)
-                        prompt1.previousPage(reaction.message as Discord.Message)
                         break;
 
                     case '▶':
-                        let p2 = await Database.findPrompt(reaction.message.id)
-                        let prompt2 = new Prompt({ content: p2.content, id: p2.id, page: p2.page, totalPages: p2.totalPages })
-                        reaction.users.remove(user as Discord.User)
-                        prompt2.nextPage(reaction.message as Discord.Message)
                         break;
 
                     case '👍':
