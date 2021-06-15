@@ -69,5 +69,6 @@ export const AssignEmbed = new Command({
         })
 
         roleAssigner.show(interaction.channel, interaction.user.id)
+        interaction.deleteReply()
     }
 })
