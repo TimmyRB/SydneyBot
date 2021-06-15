@@ -17,7 +17,7 @@ import { Command, Prompt } from '../../lib/models/bot';
 
 export const Info = new Command({
     name: 'info',
-    desc: 'Displays information on User(s) or TextChannel(s)',
+    desc: 'Displays information on a user',
     options: [
         {
             name: 'user',
