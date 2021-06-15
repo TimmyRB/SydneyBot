@@ -18,6 +18,7 @@ import { Command, Prompt, Assigner } from './lib/models/bot';
 import * as Commands from './src/commands';
 import { Database } from './lib/database/database';
 import { Logger } from './lib/database/logger';
+import { ApplicationCommandPermissionType } from 'discord-api-types';
 
 const intents = new Discord.Intents();
 intents.add('DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILDS', 'GUILD_INVITES', 'GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS')
@@ -28,6 +29,10 @@ const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, C
 
 // Invites will be cached here
 const invites: any = {}
+
+interface PermissionsType {
+    [k: string]: Discord.ApplicationCommandPermissionData[]
+}
 
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user?.tag}`)
@@ -40,17 +45,39 @@ bot.on('ready', async () => {
 
     var appCommands: Discord.ApplicationCommandData[] = []
 
+    var permissions: PermissionsType = {}
+
     for (let c of commands) {
         let data: Discord.ApplicationCommandData = {
             name: c.data.name,
             description: c.data.desc,
             options: c.data.options,
+            defaultPermission: !(c.data.permissions.toArray().length > 0)
+        }
+
+        permissions[c.data.name] = []
+
+        if (c.data.permissions.toArray().length > 0) {
+            (await bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)!.members.fetch()).forEach(m => {
+                if (m.permissions.has(c.data.permissions)) {
+                    permissions[c.data.name].push({
+                        id: m.id,
+                        type: 'USER',
+                        permission: true
+                    })
+                }
+            })
         }
 
         appCommands.push(data)
     }
 
-    await bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.commands.set(appCommands)
+    console.log(permissions)
+
+    let setCommands = await bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.commands.set(appCommands)!
+    for (let sc of setCommands) {
+        sc[1].setPermissions(permissions[sc[1].name])
+    }
 
     setTimeout(() => {
         bot.guilds.cache.forEach(guild => {
