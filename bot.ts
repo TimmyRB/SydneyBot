@@ -32,7 +32,7 @@ const invites: any = {}
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user?.tag}`)
 
-    bot.user?.setActivity('for !help', { type: 'WATCHING' })
+    bot.user?.setActivity('over SDNE 👀', { type: 'WATCHING' })
 
     bot.application?.commands.fetch().then(commands => commands.forEach(c => {
         c.delete().catch(err => console.error(err))
