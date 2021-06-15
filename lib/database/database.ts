@@ -135,12 +135,8 @@ export class Database {
    * Add a prompt to the Database to keep track of it
    * @param content array of Discord Embeds
    */
-  static createPrompt(id: string, content: MessageEmbed[], uuid: string) {
-    let unparsed: string[] = []
-
-    content.forEach(c => {
-      unparsed.push(JSON.stringify(c.toJSON()))
-    })
+  static createPrompt(id: string, content: MessageEmbed, uuid: string) {
+    let unparsed = (JSON.stringify(content.toJSON()))
 
     Prompts.create({ id: id, content: unparsed, page: 0, totalPages: content.length - 1 }).catch(err => Logger.error(uuid, 'createPrompt Prompts.create', err))
   }
