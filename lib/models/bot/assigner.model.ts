@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:17:36
  */
 
-import { Client, DMChannel, EmbedField, EmojiResolvable, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
+import { Client, DMChannel, EmbedField, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import { Database } from '../../database/database';
 import { Logger } from '../../database/logger';
 

@@ -11,7 +11,6 @@
  */
 
 import { DataTypes, Model } from 'sequelize-cockroachdb';
-import { EmojiResolvable } from 'discord.js'
 import { sequelize } from './'
 
 export class Assigners extends Model {

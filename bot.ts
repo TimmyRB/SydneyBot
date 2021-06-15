@@ -14,11 +14,10 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import * as Discord from 'discord.js'
-import { Command, Prompt, Assigner } from './lib/models/bot';
+import { Command, Assigner } from './lib/models/bot';
 import * as Commands from './src/commands';
 import { Database } from './lib/database/database';
 import { Logger } from './lib/database/logger';
-import { ApplicationCommandPermissionType } from 'discord-api-types';
 
 const intents = new Discord.Intents();
 intents.add('DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILDS', 'GUILD_INVITES', 'GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS')

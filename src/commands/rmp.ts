@@ -11,8 +11,8 @@
  * Last modified  : 2021-01-30 21:23:56
  */
 
-import { Command, Prompt } from '../../lib/models/bot';
-import { DMChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
+import { Command } from '../../lib/models/bot';
+import { MessageEmbed, Permissions, } from 'discord.js';
 import { parse } from 'node-html-parser';
 import Axios from 'axios';
 

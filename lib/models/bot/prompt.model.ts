@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:19:32
  */
 
-import { MessageEmbed, TextChannel, Message, DMChannel, NewsChannel, CommandInteraction } from 'discord.js'
+import { MessageEmbed, CommandInteraction } from 'discord.js'
 import { Database } from '../../database/database';
 
 interface PromptOptions {

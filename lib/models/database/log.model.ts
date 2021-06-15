@@ -10,7 +10,7 @@
  * Last modified  : 2021-06-14 14:41:23
  */
 
-import { DataTypes, Model, Sequelize, UUIDV4 } from 'sequelize-cockroachdb';
+import { DataTypes, Model, UUIDV4 } from 'sequelize-cockroachdb';
 import { sequelize } from './'
 
 export class Logs extends Model {

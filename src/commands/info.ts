@@ -11,7 +11,7 @@
  * Last modified  : 2021-01-30 21:21:53
  */
 
-import { DMChannel, GuildChannel, MessageEmbed, NewsChannel, Permissions, TextChannel } from 'discord.js';
+import { MessageEmbed, Permissions, } from 'discord.js';
 import { Database } from '../../lib/database/database';
 import { Command, Prompt } from '../../lib/models/bot';
 

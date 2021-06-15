@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:22:37
  */
 
-import { Permissions, GuildMember, MessageEmbed } from 'discord.js'
+import { Permissions, MessageEmbed } from 'discord.js'
 import { Database } from '../../lib/database/database';
 import { Command, Prompt } from '../../lib/models/bot';
 

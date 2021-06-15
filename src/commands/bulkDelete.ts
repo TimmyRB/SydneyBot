@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:20:28
  */
 
-import { Message, Permissions, TextChannel } from 'discord.js'
+import { Permissions, TextChannel } from 'discord.js'
 import { Command } from '../../lib/models/bot';
 
 export const BulkDelete = new Command({

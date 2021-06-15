@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:44:01
  */
 
-import { Permissions, Message, GuildMember, ApplicationCommandOption, Interaction, APIMessage, WebhookEditMessageOptions, DiscordAPIError, CommandInteraction, Collection, CommandInteractionOption } from 'discord.js';
+import { Permissions, GuildMember, ApplicationCommandOption, CommandInteraction, Collection, CommandInteractionOption } from 'discord.js';
 import { Logger } from '../../database/logger';
 import * as databaseModels from '../database'
 
