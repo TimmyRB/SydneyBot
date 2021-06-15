@@ -121,7 +121,7 @@ export const RMP = new Command({
                                         value: `\`\`\`${p.highlightReview}\`\`\``
                                     }
                                 ]
-                            })]
+                            })], ephemeral: (args.get('hidden') != undefined ? args.get('hidden')!.value as boolean : false)
                         })
                     }).catch(err => { interaction.editReply(`I had trouble finding that professor. Please double check your spelling!`) })
                 }
