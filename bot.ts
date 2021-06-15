@@ -24,7 +24,7 @@ intents.add('DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'GUILDS', 'GUILD_INVI
 const bot = new Discord.Client({ intents: intents });
 
 // Commands need to be added here before they'll work
-const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, Commands.AssignEmbed, Commands.Mute, Commands.Unmute]
+const commands: Command[] = [Commands.Info, Commands.BulkDelete, Commands.RMP, Commands.AssignEmbed, Commands.Mute, Commands.Unmute, Commands.Warn]
 
 // Invites will be cached here
 const invites: any = {}
@@ -86,11 +86,7 @@ bot.on('interaction', async interaction => {
             return
         }
 
-        if (interaction.user.bot)
-            return
-
         let found = false
-
         for (let c of commands) {
             if (found)
                 break
