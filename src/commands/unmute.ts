@@ -17,29 +17,31 @@ import { Command, Prompt } from '../../lib/models/bot';
 export const Unmute = new Command({
     name: 'unmute',
     desc: 'Unmutes a User\'s Interactions',
-    usage: '!unmute <users: User[]>',
-    permissions: new Permissions('MANAGE_MESSAGES'),
-    callback: (message, args, dbUser) => {
-        let members: GuildMember[] = []
-        message.mentions.members?.forEach((member, i, a) => {
-            Database.setMuted(member.id, false)
-            members.push(member)
-        })
-
-        if (members.length > 0) {
-            new Prompt({
-                content: [
-                    new MessageEmbed({
-                        title: `🔊 Unmuted ${members.length} User${members.length > 1 ? 's' : ''}`,
-                        color: 16725558,
-                        fields: [
-                            {
-                                name: 'Successfully Unmuted:',
-                                value: `\`\`\`${members.map(m => m.displayName).join(', ')}\`\`\``
-                            }
-                        ]
-                    })]
-            }).show(message.channel, message.author.id)
+    options: [
+        {
+            name: 'user',
+            type: 'USER',
+            description: 'The user to unmute',
+            required: true
         }
+    ],
+    permissions: new Permissions('MANAGE_MESSAGES'),
+    callback: (interaction, args, dbUser) => {
+        let user = args.get('user')?.user!
+        Database.setMuted(user.id, false)
+
+        new Prompt({
+            content:
+                new MessageEmbed({
+                    title: `🔊 Unmuted`,
+                    color: 16725558,
+                    fields: [
+                        {
+                            name: 'Unmuted:',
+                            value: `${user}`
+                        }
+                    ]
+                })
+        }).show(interaction, interaction.user.id)
     }
 })

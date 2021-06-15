@@ -18,62 +18,25 @@ import { Command, Prompt } from '../../lib/models/bot';
 export const Info = new Command({
     name: 'info',
     desc: 'Displays information on User(s) or TextChannel(s)',
-    usage: '!info <mentions: User[] | TextChannel[]>',
-    permissions: new Permissions(),
-    callback: async (message, args, dbUser) => {
-        let pages: MessageEmbed[] = []
-        let profsProcessed = 0
-
-        for (let c of message.mentions.channels.array()) {
-            let channel = c as TextChannel
-            let invites = await channel.fetchInvites()
-            pages.push(new MessageEmbed({
-                title: `#${channel.name} info`,
-                color: 7501437,
-                footer: {
-                    text: `Channel Id: ${channel.id}`
-                },
-                thumbnail: {
-                    url: 'https://i.imgur.com/GMlXd6b.png'
-                },
-                fields: [
-                    {
-                        name: 'NSFW',
-                        value: `\`\`\`${channel.nsfw}\`\`\``,
-                        inline: true
-                    },
-                    {
-                        name: 'Invites',
-                        value: `\`\`\`${invites.size}\`\`\``,
-                        inline: true
-                    },
-                    {
-                        name: 'Rate Limit',
-                        value: `\`\`\`${channel.rateLimitPerUser}\`\`\``,
-                        inline: true
-                    },
-                    {
-                        name: 'Parent',
-                        value: `${channel.parent}`,
-                        inline: true
-                    },
-                    {
-                        name: 'Created',
-                        value: `${channel.createdAt.toDateString()}`,
-                        inline: true
-                    },
-                    {
-                        name: 'Type',
-                        value: `${channel.type.toUpperCase()}`,
-                        inline: true
-                    }
-                ]
-            }))
+    options: [
+        {
+            name: 'user',
+            type: 'USER',
+            description: 'A user to get information on'
+        },
+        {
+            name: 'channel',
+            type: 'CHANNEL',
+            description: 'A channel to get information on'
         }
+    ],
+    permissions: new Permissions(),
+    callback: async (interaction, args, dbUser) => {
 
-        for (let member of message.mentions.members!.array()) {
+        if (args.get('user')?.user !== undefined) {
+            let member = interaction.guild?.members.cache.find(m => m.user === args.get('user')?.user!)!
             let menUser = await Database.findUser(member.id)
-            pages.push(new MessageEmbed({
+            let embed = new MessageEmbed({
                 title: `${member.displayName}'s Info`,
                 color: member.displayColor,
                 footer: {
@@ -115,7 +78,7 @@ export const Info = new Command({
                     },
                     {
                         name: 'Invited By',
-                        value: message.guild?.client.users.cache.find(u => u.id === menUser.referrer) ? `${message.guild?.client.users.cache.find(u => u.id === menUser.referrer)}` : 'Unknown',
+                        value: interaction.guild?.client.users.cache.find(u => u.id === menUser.referrer) ? `${interaction.guild?.client.users.cache.find(u => u.id === menUser.referrer)}` : 'Unknown',
                         inline: true
                     },
                     {
@@ -133,14 +96,59 @@ export const Info = new Command({
                         value: member.roles.cache.filter(role => role.name !== '@' + 'everyone').size > 0 ? member.roles.cache.filter(role => role.name !== '@' + 'everyone').map(role => `${role}`).reverse().join(', ') : 'None'
                     }
                 ]
-            }))
-        }
+            })
 
-        showPrompt(pages, message.channel, message.author.id)
+            let prompt = new Prompt({ content: embed })
+            prompt.show(interaction, interaction.user.id)
+
+        } else if (args.get('channel')?.channel !== undefined) {
+            let channel = args.get('channel')?.channel! as TextChannel
+            let invites = await channel.fetchInvites()
+            let embed = new MessageEmbed({
+                title: `#${channel.name} info`,
+                color: 7501437,
+                footer: {
+                    text: `Channel Id: ${channel.id}`
+                },
+                thumbnail: {
+                    url: 'https://i.imgur.com/GMlXd6b.png'
+                },
+                fields: [
+                    {
+                        name: 'NSFW',
+                        value: `\`\`\`${channel.nsfw}\`\`\``,
+                        inline: true
+                    },
+                    {
+                        name: 'Invites',
+                        value: `\`\`\`${invites.size}\`\`\``,
+                        inline: true
+                    },
+                    {
+                        name: 'Rate Limit',
+                        value: `\`\`\`${channel.rateLimitPerUser}\`\`\``,
+                        inline: true
+                    },
+                    {
+                        name: 'Parent',
+                        value: `${channel.parent}`,
+                        inline: true
+                    },
+                    {
+                        name: 'Created',
+                        value: `${channel.createdAt.toDateString()}`,
+                        inline: true
+                    },
+                    {
+                        name: 'Type',
+                        value: `${channel.type.toUpperCase()}`,
+                        inline: true
+                    }
+                ]
+            })
+
+            let prompt = new Prompt({ content: embed })
+            prompt.show(interaction, interaction.user.id)
+        }
     }
 })
-
-function showPrompt(pages: MessageEmbed[], channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
-    let prompt = new Prompt({ content: pages })
-    prompt.show(channel, uuid)
-}

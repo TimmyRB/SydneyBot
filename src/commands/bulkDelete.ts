@@ -10,25 +10,35 @@
  * Last modified  : 2021-01-30 21:20:28
  */
 
-import { Permissions, TextChannel } from 'discord.js'
+import { Message, Permissions, TextChannel } from 'discord.js'
 import { Command } from '../../lib/models/bot';
 
 export const BulkDelete = new Command({
     name: 'cleanup',
     desc: 'Cleans up to 100 recent messages in any channel',
-    usage: '!cleanup <amount: number>',
+    options: [
+        {
+            name: 'amount',
+            type: 'INTEGER',
+            description: 'Amount of messages to delete (max 100)',
+            required: true
+        }
+    ],
     permissions: new Permissions('MANAGE_MESSAGES'),
-    callback: (message, args, dbUser) => {
-        let amount: number = parseInt(args[0], 10)
+    callback: async (interaction, args, dbUser) => {
+        let amount: number = args.get('amount')?.value as number
 
         if (amount > 100)
             amount = 100
 
-        message.delete()
+        let channel = interaction.channel as TextChannel
 
-        let channel = message.channel as TextChannel
-        channel.bulkDelete(amount, true).then(deleted => {
-            channel.send(`${message.author}, deleted ${deleted.size} messages from ${channel}`).then(reply => setTimeout(() => reply.delete(), 5000))
-        })
+        let messages = await interaction.channel.messages.fetch()
+        let filtered = messages.filter(m => m.interaction?.id !== interaction.id)
+
+        await channel.bulkDelete(filtered, true)
+            .then(deleted => {
+                interaction.followUp({ content: `Successfully deleted ${deleted.size} messages from ${channel}`, ephemeral: true }).catch(err => console.error(err))
+            }).catch(err => console.error(err))
     }
 })
