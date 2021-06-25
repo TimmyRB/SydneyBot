@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:20:28
  */
 
-import { Permissions, TextChannel } from 'discord.js'
+import { Collection, Message, Permissions, TextChannel } from 'discord.js'
 import { Command } from '../../lib/models/bot';
 
 export const BulkDelete = new Command({
@@ -39,7 +39,12 @@ export const BulkDelete = new Command({
         let channel = interaction.channel as TextChannel
 
         let messages = await interaction.channel.messages.fetch()
-        let filtered = messages.filter(m => m.interaction?.id !== interaction.id)
+        let filtered: Message[] = [];
+
+        messages.array().forEach((m, i) => {
+            if (i <= amount && m.interaction?.id !== interaction.id)
+                filtered.push(m)
+        })
 
         await channel.bulkDelete(filtered, true)
             .then(deleted => {
