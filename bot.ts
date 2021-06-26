@@ -7,7 +7,7 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:43:13 
- * Last modified  : 2021-01-30 22:26:45
+ * Last modified  : 2021-06-15 16:00:17
  */
 
 import * as dotenv from 'dotenv';
@@ -42,6 +42,7 @@ bot.on('ready', async () => {
         c.delete().catch(err => console.error(err))
     }))
 
+
     var appCommands: Discord.ApplicationCommandData[] = []
 
     var permissions: PermissionsType = {}
@@ -70,8 +71,6 @@ bot.on('ready', async () => {
 
         appCommands.push(data)
     }
-
-    console.log(permissions)
 
     let setCommands = await bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.commands.set(appCommands)!
     for (let sc of setCommands) {
@@ -102,35 +101,41 @@ bot.on('message', (message: Discord.Message) => {
     }
 })
 
-bot.on('interaction', async interaction => {
-    if (!interaction.isCommand()) return;
+bot.on('interaction', async (interaction: Discord.Interaction) => {
+    if (interaction.isCommand()) {
 
-    let ephemeral: boolean = false
-    if (interaction.options.get('hidden') != undefined) {
-        ephemeral = interaction.options.get('hidden')!.value as boolean
+        let ephemeral: boolean = false
+        if (interaction.options.get('hidden') != undefined) {
+            ephemeral = interaction.options.get('hidden')!.value as boolean
+        }
+
+        await interaction.defer({ ephemeral: ephemeral })
+        Database.findUser(interaction.user.id).then(dbUser => {
+            if (dbUser.muted) {
+                interaction.deleteReply()
+                return
+            }
+
+            let found = false
+            for (let c of commands) {
+                if (found)
+                    break
+
+                found = c.run(interaction, dbUser, bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.members.cache.find(m => m.user === interaction.user)!)
+            }
+
+            if (!found) {
+                interaction.deleteReply()
+            } else {
+                Database.incrementInfo(interaction.user.id, 'commands')
+            }
+        }).catch(err => console.error(err))
+    } else if (interaction.isButton()) {
+        Database.findAssigner(interaction.message.id).then(a => {
+            let assigner = new Assigner({ title: a.title, description: a.description, reactionRoles: a.reactionRoles, id: a.id })
+            assigner.assignRole(bot, interaction)
+        }).catch(err => console.error(err))
     }
-
-    await interaction.defer({ ephemeral: ephemeral })
-    Database.findUser(interaction.user.id).then(dbUser => {
-        if (dbUser.muted) {
-            interaction.deleteReply()
-            return
-        }
-
-        let found = false
-        for (let c of commands) {
-            if (found)
-                break
-
-            found = c.run(interaction, dbUser, bot.guilds.cache.get(`${BigInt(process.env.BOT_GUILD!)}`)?.members.cache.find(m => m.user === interaction.user)!)
-        }
-
-        if (!found) {
-            interaction.deleteReply()
-        } else {
-            Database.incrementInfo(interaction.user.id, 'commands')
-        }
-    }).catch(err => Logger.error(interaction.user.id, 'Database.findUser', err))
 })
 
 // Handle Reaction being Added
@@ -139,7 +144,7 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
         try {
             await reaction.fetch()
         } catch (err) {
-            Logger.error(user.id, 'reaction.fetch', err)
+            console.error(err)
             return
         }
     }
@@ -148,7 +153,7 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
         try {
             await user.fetch()
         } catch (err) {
-            Logger.error(user.id, 'user.fetch', err)
+            console.error(err)
             return
         }
     }
@@ -171,36 +176,14 @@ bot.on('messageReactionAdd', async (reaction: Discord.MessageReaction, user: Dis
             user.send(`${reaction.message.author} **sent:**\n${reaction.message.content}\n\n**viewable here:**\n${reaction.message.url}`).then((m) => m.react('🗑️'))
         } else if (reaction.emoji.name === '🗑️' && reaction.message.author === bot.user && reaction.message.channel.type === "dm") {
             if (reaction.message.deletable)
-                reaction.message.delete().catch(err => Logger.error(user.id, 'Reaction Delete', err));
+                reaction.message.delete().catch(err => console.error(err));
             else {
                 reaction.message.reply("Couldn't delete message.").then((m) => setTimeout(() => { m.delete() }, 5000))
-            }
-        } else if (users.has(bot.user!.id)) {
-            if (reaction.emoji.name === '◀' || reaction.emoji.name === '▶' || reaction.emoji.name === '👍' || reaction.emoji.name === '📌' || reaction.emoji.name === '❓') {
-                switch (reaction.emoji.name) {
-                    case '◀':
-                        break;
-
-                    case '▶':
-                        break;
-
-                    case '👍':
-                        Database.addXP(reaction.message.author!.id, 5)
-                        break;
-
-                    case '❓':
-                        break;
-                }
-            } else {
-                Database.findAssigner(reaction.message.id).then(a => {
-                    let assigner = new Assigner({ title: a.title, description: a.description, reactionRoles: a.reactionRoles, id: a.id })
-                    assigner.assignRole(bot, reaction.message as Discord.Message, reaction, user as Discord.User)
-                }).catch(err => Logger.error(user.id, 'Database.findAssigner', err))
             }
         } else {
             Database.addXP(reaction.message.author!.id, 1)
         }
-    }).catch(err => Logger.error(reaction.message.author!.id, 'Database.findUser', err))
+    }).catch(err => console.error(err))
 })
 
 // Handle Discord User Joining Server
@@ -232,17 +215,17 @@ bot.on('messageUpdate', async (message: Discord.Message | Discord.PartialMessage
         try {
             await message.fetch()
         } catch (err) {
-            Logger.error(message.id, 'reaction.fetch', err)
+            console.error(err)
             return
         }
     }
 
     Database.findUser(message.author!.id).then(dbUser => {
         if (dbUser.muted) {
-            message.delete().catch(err => Logger.error(message.author!.id, 'message.delete', err))
+            message.delete().catch(err => console.error(err))
             return
         }
-    }).catch(err => Logger.error(message.author!.id, 'Database.findUser', err))
+    }).catch(err => console.error(err))
 })
 
 bot.login(process.env.BOT_TOKEN)

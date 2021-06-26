@@ -10,7 +10,7 @@
  * Last modified  : 2021-01-30 21:17:36
  */
 
-import { Client, DMChannel, EmbedField, Message, MessageEmbed, MessageReaction, NewsChannel, Role, TextChannel, User } from 'discord.js';
+import { APIMessage, ButtonInteraction, Client, CommandInteraction, Message, MessageActionRow, MessageButton, MessageButtonStyle, MessageEmbed, MessageReaction, Role, User } from 'discord.js';
 import { Database } from '../../database/database';
 import { Logger } from '../../database/logger';
 
@@ -33,7 +33,9 @@ interface AssignerOptions {
         /** Emoji that will assign role when reacted to */
         emoji: string,
         /** Id of the Role to assign to the reactor */
-        roleId: string
+        roleId: string,
+        /** Style of button */
+        style: MessageButtonStyle
     }[];
 }
 
@@ -54,29 +56,25 @@ export class Assigner {
      * @param channel channel to send it to
      * @param uuid uuid of the user requesting the Assigner
      */
-    show(channel: TextChannel | DMChannel | NewsChannel, uuid: string) {
-        let fields: EmbedField[] = []
-
-        this.data?.reactionRoles?.forEach(rRole => {
-            fields.push({
-                name: rRole.emoji.toString(),
-                value: rRole.name,
-                inline: true
-            })
-        })
+    show(interaction: CommandInteraction) {
 
         let embed: MessageEmbed = new MessageEmbed({
             title: this.data?.title,
-            description: this.data?.description,
-            fields: fields
+            description: this.data?.description
         })
 
-        channel.send({ embeds: [embed] }).then(msg => {
-            Database.createAssigner(msg.id, uuid, this.data?.title!, this.data?.description!, this.data?.reactionRoles!)
-            this.data?.reactionRoles?.forEach(async rRole => {
-                await msg.react(rRole.emoji)
-            })
-        })
+        let rows: MessageActionRow[] = [];
+        for (let r of this.data?.reactionRoles!) {
+            if (r.groupId + 1 > rows.length)
+                rows.push(new MessageActionRow())
+
+            let row = rows[r.groupId]
+            row.addComponents([new MessageButton({ style: r.style, customID: r.roleId, label: r.name, emoji: r.emoji })])
+        }
+
+        interaction.editReply({ embeds: [embed], components: rows }).then(msg => {
+            Database.createAssigner(msg.id, interaction.user.id, this.data?.title!, this.data?.description!, this.data?.reactionRoles!)
+        }).catch(err => console.error(err))
     }
 
     /**
@@ -86,15 +84,15 @@ export class Assigner {
      * @param reaction the reaction that the user reacted with
      * @param user the user who reacted
      */
-    assignRole(bot: Client, message: Message, reaction: MessageReaction, user: User) {
+    assignRole(bot: Client, interaction: ButtonInteraction) {
         if (this.data?.id === '0')
             return
 
-        if (message.id !== this.data?.id)
+        if (interaction.message.id !== this.data?.id)
             return
 
-        let foundReactRole = this.data?.reactionRoles?.find(e => e.emoji.toString() == reaction.emoji.toString())
-        let foundRole = bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.roles.cache.find(r => r.id === foundReactRole?.roleId)
+        let foundRole = bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.roles.cache.find(r => r.id === interaction.customID)
+        let foundReactRole = this.data?.reactionRoles?.find(e => foundRole?.name.indexOf(e.name) !== -1)
 
         let removeRoles: Role[] = []
 
@@ -111,18 +109,30 @@ export class Assigner {
                 removeRoles.push(r)
         })
 
-        if (foundReactRole === undefined || foundRole === undefined || removeRoles.length === 0)
+        if (foundReactRole === undefined || foundRole === undefined)
             return
 
         bot.guilds.cache.find(g => g.id === process.env.BOT_GUILD)?.members.fetch().then(members => {
-            let member = members.find(m => m.user === user)
-            let firstRole = member?.roles.cache.size === 1
+            let member = members.find(m => m.user === interaction.user)
+
+            let rolesSnap = member?.roles.cache
+
+            let embed = new MessageEmbed({
+                title: `Role Change`,
+                color: foundRole!.color,
+                fields: [{
+                    name: 'Added:',
+                    value: `\`\`\`${foundRole!.name} \`\`\``
+                }]
+            })
 
             member?.roles.remove(removeRoles).then(() => {
+                rolesSnap = rolesSnap?.filter(r => !member?.roles.cache.has(r.id)!)
+                embed.addField('Removed:', `\`\`\`${rolesSnap?.map(r => r.name).join(', ')} \`\`\``)
                 member?.roles.add(foundRole!).then(() => {
-                    reaction.users.remove(user).catch(err => Logger.error(user.id, 'reaction.users.remove', err))
-                }).catch(err => Logger.error(user.id, 'member.roles.add', err))
-            }).catch(err => Logger.error(user.id, 'member.roles.remove', err))
-        }).catch(err => Logger.error(user.id, 'members.fetch', err))
+                    interaction.reply({ embeds: [embed], ephemeral: true })
+                }).catch(err => console.error(err))
+            }).catch(err => console.error(err))
+        }).catch(err => console.error(err))
     }
 }

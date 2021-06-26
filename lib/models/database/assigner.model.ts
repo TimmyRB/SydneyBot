@@ -7,9 +7,10 @@
  * @author Jacob Brasil
  *
  * Created at     : 2021-01-30 17:33:03 
- * Last modified  : 2021-06-14 14:41:27
+ * Last modified  : 2021-06-25 15:20:50
  */
 
+import { MessageButtonStyle } from 'discord.js';
 import { DataTypes, Model } from 'sequelize-cockroachdb';
 import { sequelize } from './'
 
@@ -17,7 +18,7 @@ export class Assigners extends Model {
     id!: string;
     title!: string;
     description!: string;
-    reactionRoles!: { groupId: number, name: string, emoji: string, roleId: string }[];
+    reactionRoles!: { groupId: number, name: string, emoji: string, roleId: string, style: MessageButtonStyle }[];
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;

@@ -11,7 +11,7 @@
  */
 
 import * as databaseModels from '../models/database'
-import { MessageEmbed, EmojiResolvable } from 'discord.js'
+import { MessageEmbed, MessageButtonStyle } from 'discord.js'
 import { Logger } from './logger'
 const Users = databaseModels.Users
 const Prompts = databaseModels.Prompts
@@ -30,16 +30,16 @@ export class Database {
       if (data[1]) {
         let newXp = parseInt(data[0].xp.toString(), 10) + Math.floor(Math.random() * (25 - 5 + 1)) + 5
         Users.update(
-          { xp: newXp, xpLastUpdated: Date.now() }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'generateXP Users.update', err))
+          { xp: newXp, xpLastUpdated: Date.now() }, { where: { uuid: uuid } }).catch(err => console.error(err))
         return
       }
 
       if (Date.now() >= new Date(data[0].xpLastUpdated.getTime() + 1 * 60000).getTime()) {
         let newXp = parseInt(data[0].xp.toString(), 10) + Math.floor(Math.random() * (25 - 5 + 1)) + 5
         Users.update(
-          { xp: newXp, xpLastUpdated: Date.now() }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'generateXP Users.update', err))
+          { xp: newXp, xpLastUpdated: Date.now() }, { where: { uuid: uuid } }).catch(err => console.error(err))
       }
-    }).catch(err => Logger.error(uuid, 'generateXP Users.findOrCreate', err))
+    }).catch(err => console.error(err))
   }
 
   /**
@@ -51,8 +51,8 @@ export class Database {
     Users.findOrCreate({ where: { uuid: uuid } }).then(data => {
       let newXp = parseInt(data[0].xp.toString(), 10) + Math.floor(xp)
       Users.update(
-        { xp: newXp }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'addXP Users.update', err))
-    }).catch(err => Logger.error(uuid, 'addXP Users.findOrCreate', err))
+        { xp: newXp }, { where: { uuid: uuid } }).catch(err => console.error(err))
+    }).catch(err => console.error(err))
   }
 
   /**
@@ -66,24 +66,24 @@ export class Database {
         Users.findOrCreate({ where: { uuid: uuid } }).then(data => {
           let newC = parseInt(data[0].commands.toString(), 10) + 1
           Users.update(
-            { commands: newC }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'incrementInfo Users.update', err))
-        }).catch(err => Logger.error(uuid, 'incrementInfo Users.findOrCreate', err))
+            { commands: newC }, { where: { uuid: uuid } }).catch(err => console.error(err))
+        }).catch(err => console.error(err))
         break;
 
       case 'messages':
         Users.findOrCreate({ where: { uuid: uuid } }).then(data => {
           let newM = parseInt(data[0].messages.toString(), 10) + 1
           Users.update(
-            { messages: newM }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'incrementInfo Users.update', err))
-        }).catch(err => Logger.error(uuid, 'incrementInfo Users.findOrCreate', err))
+            { messages: newM }, { where: { uuid: uuid } }).catch(err => console.error(err))
+        }).catch(err => console.error(err))
         break;
 
       case 'warns':
         Users.findOrCreate({ where: { uuid: uuid } }).then(data => {
           let newW = parseInt(data[0].warns.toString(), 10) + 1
           Users.update(
-            { warns: newW }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'incrementInfo Users.update', err))
-        }).catch(err => Logger.error(uuid, 'incrementInfo Users.findOrCreate', err))
+            { warns: newW }, { where: { uuid: uuid } }).catch(err => console.error(err))
+        }).catch(err => console.error(err))
         break;
     }
   }
@@ -96,8 +96,8 @@ export class Database {
   static setMuted(uuid: string, muted: boolean) {
     Users.findOrCreate({ where: { uuid: uuid } }).then(data => {
       Users.update(
-        { muted: muted }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'setMuted Users.update', err))
-    }).catch(err => Logger.error(uuid, 'setMuted Users.findOrCreate', err))
+        { muted: muted }, { where: { uuid: uuid } }).catch(err => console.error(err))
+    }).catch(err => console.error(err))
   }
 
   /**
@@ -108,14 +108,14 @@ export class Database {
   static setReferrer(uuid: string, referrerId: string) {
     Users.findOrCreate({ where: { uuid: uuid } }).then(data => {
       Users.update(
-        { referrer: referrerId }, { where: { uuid: uuid } }).catch(err => Logger.error(uuid, 'setReferrer Users.update', err))
-    }).catch(err => Logger.error(uuid, 'setReferrer Users.findOrCreate', err))
+        { referrer: referrerId }, { where: { uuid: uuid } }).catch(err => console.error(err))
+    }).catch(err => console.error(err))
 
     Users.findOrCreate({ where: { uuid: referrerId } }).then(data => {
       let newRefs = parseInt(data[0].referrals.toString(), 10) + 1
       Users.update(
-        { referrals: newRefs }, { where: { uuid: referrerId } }).catch(err => Logger.error(uuid, 'setReferrer Users.update', err))
-    }).catch(err => Logger.error(uuid, 'setReferrer Users.findOrCreate', err))
+        { referrals: newRefs }, { where: { uuid: referrerId } }).catch(err => console.error(err))
+    }).catch(err => console.error(err))
   }
 
   /**
@@ -138,7 +138,7 @@ export class Database {
   static createPrompt(id: string, content: MessageEmbed, uuid: string) {
     let unparsed = (JSON.stringify(content.toJSON()))
 
-    Prompts.create({ id: id, content: unparsed, page: 0, totalPages: content.length - 1 }).catch(err => Logger.error(uuid, 'createPrompt Prompts.create', err))
+    Prompts.create({ id: id, content: unparsed, page: 0, totalPages: content.length - 1 }).catch(err => console.error(err))
   }
 
   /**
@@ -146,7 +146,7 @@ export class Database {
    * @param id id of Prompt to change the page of
    */
   static nextPage(id: string, uuid: string) {
-    Prompts.increment('page', { where: { id: id } }).catch(err => Logger.error(uuid, 'nextPage Prompts.increment', err))
+    Prompts.increment('page', { where: { id: id } }).catch(err => console.error(err))
   }
 
   /**
@@ -154,7 +154,7 @@ export class Database {
    * @param id id of Prompt to change the page of
    */
   static previousPage(id: string, uuid: string) {
-    Prompts.update({ page: databaseModels.Sequelize.literal('page - 1') }, { where: { id: id } }).catch(err => Logger.error(uuid, 'previousPage Prompts.update', err))
+    Prompts.update({ page: databaseModels.Sequelize.literal('page - 1') }, { where: { id: id } }).catch(err => console.error(err))
   }
 
   /**
@@ -185,14 +185,16 @@ export class Database {
    * @param description description of the Embed
    * @param reactionRoles roles to be assigned when User reacts
    */
-  static createAssigner(id: string, uuid: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: string, roleId: string }[]) {
+  static createAssigner(id: string, uuid: string, title: string, description: string, reactionRoles: { groupId: number, name: string, emoji: string, roleId: string, style: MessageButtonStyle }[]) {
     let unparsed: string[] = []
 
     reactionRoles.forEach(rRole => {
-      unparsed.push(JSON.stringify(rRole))
+      let tmp: any = rRole;
+      tmp.style = rRole.style as unknown as number
+      unparsed.push(JSON.stringify(tmp))
     })
 
-    Assigners.create({ id: id, title: title, description: description, reactionRoles: unparsed }).catch(err => Logger.error(uuid, 'createAssigner Assigners.create', err))
+    Assigners.create({ id: id, title: title, description: description, reactionRoles: unparsed }).catch(err => console.error(err))
   }
 
   /**
@@ -207,6 +209,7 @@ export class Database {
 
         for (let i = 0; i < data!.reactionRoles.length; i++) {
           data!.reactionRoles[i] = JSON.parse(data!.reactionRoles[i] as unknown as string)
+          data!.reactionRoles[i].style = data!.reactionRoles[i].style as MessageButtonStyle
         }
 
         res(data!)
@@ -216,3 +219,12 @@ export class Database {
     return promise
   }
 }
+
+interface UnparsedType {
+  groupId: number,
+  name: string,
+  emoji: string,
+  roleId: string,
+  style: number
+}[]
+

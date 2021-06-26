@@ -7,7 +7,7 @@
       "test": "echo \"Error: no test specified\" && exit 1",
       "tsc": "tsc",
       "start": "ts-node bot.ts",
-      "debug": "nodemon --ext \"ts,json\" --exec \"ts-node bot.ts\""
+      "debug": "nodemon --trace-warnings --ext \"ts,json\" --exec \"ts-node bot.ts\""
    },
    "repository": {
       "type": "git",
@@ -23,13 +23,15 @@
       "axios": "^0.21.1",
       "discord.js": "github:discordjs/discord.js",
       "dotenv": "^10.0.0",
-      "node-html-parser": "^3.3.6",
+      "node-html-parser": "^3.3.5",
+      "pet-pet-gif": "^1.0.8",
       "pg": "^8.6.0",
       "sequelize-cockroachdb": "github:cockroachdb/sequelize-cockroachdb",
       "typescript": "^4.3.4"
    },
    "devDependencies": {
-      "@types/node": "^15.12.4",
+      "@types/gifencoder": "^2.0.1",
+      "@types/node": "^15.12.2",
       "@types/sequelize": "^4.28.9",
       "@types/validator": "^13.1.4",
       "discord-api-types": "^0.18.1",
