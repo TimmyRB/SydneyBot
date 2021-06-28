@@ -24,7 +24,6 @@
       "discord.js": "github:discordjs/discord.js",
       "dotenv": "^10.0.0",
       "node-html-parser": "^3.3.5",
-      "pet-pet-gif": "^1.0.8",
       "pg": "^8.6.0",
       "sequelize-cockroachdb": "github:cockroachdb/sequelize-cockroachdb",
       "typescript": "^4.3.4"
