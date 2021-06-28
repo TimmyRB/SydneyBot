@@ -3,6 +3,10 @@
    "version": "1.0.0",
    "description": "A Discord Bot for the Sheridan Software Development & Network Engineering Discord",
    "main": "bot.js",
+   "engines": {
+      "node": "14.x",
+      "npm": "7.x"
+   },
    "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
       "tsc": "tsc",
