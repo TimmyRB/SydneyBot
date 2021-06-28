@@ -52,7 +52,7 @@ export const AssignEmbed = new Command({
                     style: 'PRIMARY'
                 },
                 {
-                    groupId: 1,
+                    groupId: 0,
                     name: 'Alumni',
                     emoji: '🧾',
                     roleId: '619582173522952233', // 619582173522952233
