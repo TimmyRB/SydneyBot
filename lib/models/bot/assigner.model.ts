@@ -128,7 +128,8 @@ export class Assigner {
 
             member?.roles.remove(removeRoles).then(() => {
                 rolesSnap = rolesSnap?.filter(r => !member?.roles.cache.has(r.id)!)
-                embed.addField('Removed:', `\`\`\`${rolesSnap?.map(r => r.name).join(', ')} \`\`\``)
+                if (rolesSnap?.size !== 0)
+                    embed.addField('Removed:', `\`\`\`${rolesSnap?.map(r => r.name).join(', ')} \`\`\``)
                 member?.roles.add(foundRole!).then(() => {
                     interaction.reply({ embeds: [embed], ephemeral: true })
                 }).catch(err => console.error(err))
