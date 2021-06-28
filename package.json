@@ -30,7 +30,7 @@
    },
    "devDependencies": {
       "@types/gifencoder": "^2.0.1",
-      "@types/node": "^15.12.2",
+      "@types/node": "^15.12.5",
       "@types/sequelize": "^4.28.9",
       "@types/validator": "^13.1.4",
       "discord-api-types": "^0.18.1",
