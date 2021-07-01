@@ -40,7 +40,7 @@
       "@types/sequelize": "^4.28.9",
       "@types/validator": "^13.1.4",
       "discord-api-types": "^0.18.1",
-      "nodemon": "^2.0.7",
+      "nodemon": "^2.0.9",
       "ts-node": "10.0.0"
    }
 }
