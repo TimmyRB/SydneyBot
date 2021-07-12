@@ -27,7 +27,7 @@
       "axios": "^0.21.1",
       "discord.js": "github:discordjs/discord.js",
       "dotenv": "^10.0.0",
-      "husky": "6.0.0",
+      "husky": "7.0.1",
       "is-ci": "2.0.0",
       "node-html-parser": "^3.3.5",
       "pg": "^8.6.0",
