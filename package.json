@@ -27,7 +27,7 @@
       "axios": "^0.21.1",
       "discord.js": "github:discordjs/discord.js",
       "dotenv": "^10.0.0",
-      "node-html-parser": "^3.3.5",
+      "node-html-parser": "^4.0.0",
       "pg": "^8.6.0",
       "sequelize-cockroachdb": "github:cockroachdb/sequelize-cockroachdb",
       "typescript": "^4.3.5"
