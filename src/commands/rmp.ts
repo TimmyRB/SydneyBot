@@ -113,7 +113,7 @@ export const RMP = new Command({
                                     },
                                     {
                                         name: "⛓ Difficulty",
-                                        value: `\`\`\`${p.level} / 5\`\`\``,
+                                        value: `\`\`\`${p.level != NaN ? p.level + ' / 5' : 'Unknown'}\`\`\``,
                                         inline: true
                                     },
                                     {
