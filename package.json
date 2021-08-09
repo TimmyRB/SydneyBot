@@ -39,6 +39,6 @@
       "@types/validator": "^13.6.3",
       "discord-api-types": "^0.20.2",
       "nodemon": "^2.0.12",
-      "ts-node": "10.1.0"
+      "ts-node": "10.2.0"
    }
 }
